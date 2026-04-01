@@ -1,4 +1,4 @@
-# 🛡️ VitaCheck: Akıllı Sağlık ve Beslenme Yönetimi
+# 🛡️ VitaCheck: Akıllı Gıda Analizi ve Beslenme Ekosistemi 
 
 **VitaCheck**, paketli gıda içeriklerini yapay zeka (OCR ve NLP) ile analiz ederek, kullanıcının kişisel sağlık profiline (Diyabet, Çölyak vb.) göre anlık risk değerlendirmesi yapan ve kişiselleştirilmiş egzersiz önerileri sunan mobil bir karar destek sistemidir.
 
