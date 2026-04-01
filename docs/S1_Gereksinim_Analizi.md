@@ -27,10 +27,14 @@
 ---
 
 ## 4. Kullanıcı Hikayeleri (User Stories)
-1. **Bir kullanıcı olarak**, marketteki bir ürünün fotoğrafını çektiğimde içeriğinin dijital olarak okunmasını istiyorum.
-2. **Bir kullanıcı olarak**, fıstık alerjim olduğunu profilime kaydedip, fıstık içeren ürünlerde "Kritik Uyarı" almak istiyorum.
-3. **Bir kullanıcı olarak**, sistemin bana ürünün neden riskli olduğunu bilimsel verilerle açıklamasını istiyorum.
-4. **Bir kullanıcı olarak**, daha önce tarattığım ürünleri geçmiş listemde görebilmek istiyorum.
+### 🚀 Belirlenen User Stories (Kullanıcı Hikayeleri)
+
+1. **Gıda Etiketi Tarama:** Bir kullanıcı olarak, marketteki ürünün içeriğini hızlıca analiz etmek için etiketin fotoğrafını çekebilmek istiyorum (Sorumlu: Yusuf).
+2. **Kişisel Alerji Profili:** Bir alerjik birey olarak, profilime alerjen bilgilerimi kaydedebilmek istiyorum (Sorumlu: Hicran).
+3. **Risk Puanlaması:** Bir sağlıklı yaşam takipçisi olarak, tarattığım ürünün 1-10 arası sağlık puanını görmek istiyorum (Sorumlu: İrem).
+4. **Sağlıklı Alternatif Önerisi:** Bir tüketici olarak, riskli ürünler yerine sistemin bana sağlıklı alternatifler önermesini istiyorum (Sorumlu: İrem/Yusuf).
+5. **Geçmiş Taramalar:** Bir kullanıcı olarak, daha önce tarattığım ürünleri geçmiş listemde görebilmek istiyorum (Sorumlu: Mehmetcan).
+6. **Akademik Bilgi Doğruluğu:** Bir akademik inceleyici olarak, uygulamadaki tavsiyelerin bilimsel kaynaklarını (Harvard System) görebilmek istiyorum (Sorumlu: İrem).
 
 ---
 
