@@ -1,49 +1,43 @@
-# VitaCheck - S1: Yazılım Gereksinim Analizi Belgesi
+# VitaCheck - S1: Yazılım Gereksinim Analizi Belgesi 
 
 ## 1. Proje Özeti
-**VitaCheck**, kullanıcıların tükettikleri gıdaların içeriklerini yapay zeka desteğiyle analiz ederek, kişisel sağlık profillerine (alerji, diyet vb.) uygunluğunu denetleyen bir mobil karardır. Proje, hem bir son kullanıcı uygulaması hem de akademik bir araştırma niteliği taşımaktadır.
+**VitaCheck**, kullanıcıların tükettikleri gıdaların içeriklerini yapay zeka desteğiyle analiz ederek; diyabet, çölyak ve hipertansiyon gibi kronik rahatsızlıkları olan bireylerin sağlık profillerine uygunluğunu denetleyen bir mobil uygulamadır.
 
 ---
 
 ## 2. Proje Ekibi ve Rol Dağılımı
-* **Yusuf (Scrum Master / AI):** Gıda etiketi OCR (Görüntü İşleme) ve NLP (Doğal Dil İşleme) modellerinin geliştirilmesi.
-* **Mehmetcan (Backend):** Veritabanı yönetimi, API servisleri ve kullanıcı verilerinin güvenli depolanması.
-* **Hicran (Mobile):** Kullanıcı arayüzü (UI/UX) tasarımı ve mobil uygulama geliştirme (Flutter/React Native).
-* **İrem (Algoritma Analisti / Dokümantasyon):** Sağlık risk puanlama algoritmalarının tasarımı, veri standardizasyonu ve akademik raporlama .
+* **Mehmetcan (Scrum Master & Backend Architect):** Proje yönetimi, GitHub Projects (Kanban) yönetimi, C# .NET API geliştirme ve veritabanı mimarisi.
+* **İrem (Analiz & Dökümantasyon):** Gereksinim analizi, User Story yazımı, tıbbi gıda veri setlerinin düzenlenmesi ve akademik raporlama.
+* **Hicran (Frontend / Mobil Geliştirici):** Flutter arayüz tasarımı, kullanıcı deneyimi (UX) ve kamera entegrasyonu.
+* **Yusuf (AI & OCR Specialist):** Python ile OCR modelinin eğitimi, metin işleme ve API entegrasyonu.
 
 ---
 
-## 3. Teknik Gereksinimler ve Kapsam
+## 3. Kullanıcı Hikayeleri (User Stories)
 
-### 3.1. Yapay Zeka Özellikleri (AI)
-* **Gıda Etiketi OCR:** Ürün paketlerindeki içerik listesinin fotoğraftan dijital metne dönüştürülmesi.
-* **NLP Analizi:** Metne dönüştürülen içeriklerin analiz edilip alerjen maddelerin tespiti.
-
-### 3.2. Karar Destek Sistemi ve Analiz 
-* **Risk Puanlama:** İçerikteki şeker, tuz ve katkı maddesi oranlarına göre 1-10 arası sağlık puanı hesaplanması.
-* **Profil Eşleştirme:** Kullanıcının sağlık verileri (Diyabet, Tansiyon vb.) ile ürün içeriğinin matematiksel karşılaştırılması.
-* **Sağlıklı Alternatifler:** Riskli bulunan ürünler yerine yapay zeka tarafından daha sağlıklı ürün önerilmesi.
+1. **Diyabet Yönetimi:** Bir diyabet hastası olarak, gıda etiketindeki şeker oranını telefonumla taramak istiyorum, böylece kan şekerimi güvenli seviyede tutabilirim.
+2. **Glüten Kontrolü:** Bir çölyak hastası olarak, ürünlerin glüten içerip içermediğini anında öğrenmek istiyorum, böylece sağlığımı tehlikeye atmadan alışveriş yapabilirim.
+3. **Tansiyon Takibi:** Bir hipertansiyon hastası olarak, ürünlerdeki tuz (sodyum) miktarını takip etmek istiyorum, böylece tansiyonumu kontrol altında tutabilirim.
+4. **Egzersiz Önerisi:** Bir kullanıcı olarak, riskli bir gıda tükettiğimde sistemden egzersiz önerisi almak istiyorum, böylece aldığım fazla kaloriyi nasıl yakacağımı bilirim.
+5. **Ebeveyn Denetimi:** Bir ebeveyn olarak, paketli gıdalardaki zararlı katkı maddeleri için uyarı almak istiyorum, böylece çocuklarım için en sağlıklı ürünleri seçebilirim.
+6. **Kişiselleştirilmiş Profil:** Bir kullanıcı olarak; boy, kilo ve hastalık bilgilerimi içeren bir profil oluşturmak istiyorum, böylece tüm analizlerin bana özel yapılmasını sağlarım.
 
 ---
 
-## 4. Kullanıcı Hikayeleri (User Stories)
-### 🚀 Belirlenen User Stories (Kullanıcı Hikayeleri)
-
-1. **Gıda Etiketi Tarama:** Bir kullanıcı olarak, marketteki ürünün içeriğini hızlıca analiz etmek için etiketin fotoğrafını çekebilmek istiyorum (Sorumlu: Yusuf).
-2. **Kişisel Alerji Profili:** Bir alerjik birey olarak, profilime alerjen bilgilerimi kaydedebilmek istiyorum (Sorumlu: Hicran).
-3. **Risk Puanlaması:** Bir sağlıklı yaşam takipçisi olarak, tarattığım ürünün 1-10 arası sağlık puanını görmek istiyorum (Sorumlu: İrem).
-4. **Sağlıklı Alternatif Önerisi:** Bir tüketici olarak, riskli ürünler yerine sistemin bana sağlıklı alternatifler önermesini istiyorum (Sorumlu: İrem/Yusuf).
-5. **Geçmiş Taramalar:** Bir kullanıcı olarak, daha önce tarattığım ürünleri geçmiş listemde görebilmek istiyorum (Sorumlu: Mehmetcan).
-6. **Akademik Bilgi Doğruluğu:** Bir akademik inceleyici olarak, uygulamadaki tavsiyelerin bilimsel kaynaklarını (Harvard System) görebilmek istiyorum (Sorumlu: İrem).
+## 4. Kabul Kriterleri (Acceptance Criteria - AC)
+* **Analiz Hızı:** Sistem, net çekilmiş bir gıda etiketi fotoğrafındaki metni en geç **5 saniye** içinde analiz edip sonucu göstermelidir.
+* **Okuma Doğruluğu:** OCR (Optik Karakter Tanıma) modülü, standart ışık altında metinleri en az **%85 doğrulukla** okumalıdır.
+* **Görsel Uyarı:** Üründe kullanıcının hastalığına (örn. Diyabet) aykırı bir madde bulunursa, ekran belirgin bir **kırmızı renkle** uyarı vermelidir.
+* **Anlık Güncelleme:** Kullanıcı boy, kilo veya hastalık bilgilerini güncellediğinde, yeni analizler anında bu verilere göre güncellenmelidir.
 
 ---
 
-## 5. Akademik Hedefler ve Standartlar
-* **Yazım Kuralları:** Tüm dökümantasyon ve final raporu akademik makale formatında hazırlanacaktır.
-* **Atıf Sistemi:** Kaynakça gösteriminde **Harvard Referans Sistemi** kullanılacaktır.
-* **Sektörel Standart:** Gereksinim analizi IEEE 830 (SRS) standartlarına uygun olarak belgelenecektir.
+## 5. Fonksiyonel Olmayan Gereksinimler (NFR)
+1. **Güvenlik:** Kullanıcıların tüm sağlık verileri ve kişisel bilgileri veritabanında **Hash (şifrelenmiş)** yöntemiyle saklanacaktır.
+2. **Performans:** Uygulama, internet bağlantısı olan bir cihazda **3 saniyenin altında** açılmalı ve ana ekrana ulaşmalıdır.
+3. **Kullanılabilirlik:** Arayüz, görme zorluğu çekebilecek kullanıcılar için yüksek kontrastlı renkler ve en az **14pt** font boyutu ile tasarlanacaktır.
 
 ---
 
-## 6. Proje Takvimi (Yönetim)
-Proje, GitHub Issues üzerinden takip edilen haftalık sprintler ile yönetilecektir. Görev dağılımları "To Do", "In Progress" ve "Done" şeklinde panolardan izlenecektir.
+## 6. Akademik Standartlar
+* **Atıf Sistemi:** Tüm tıbbi veri kaynakları **Harvard Referans Sistemi** kullanılarak belgelenecektir.
