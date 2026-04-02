@@ -39,5 +39,3 @@
 
 ---
 
-## 6. Akademik Standartlar
-* **Atıf Sistemi:** Tüm tıbbi veri kaynakları **Harvard Referans Sistemi** kullanılarak belgelenecektir.
