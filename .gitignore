@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.jpg
+!testgorsel.jpg
+*.png
+tmp_*
+debug_*
