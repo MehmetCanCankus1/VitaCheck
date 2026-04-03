@@ -1,0 +1,6 @@
+@VitaCheck.API_HostAddress = http://localhost:5117
+
+GET {{VitaCheck.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
