@@ -34,6 +34,7 @@ python main.py testgorsel.jpg
 - Sistem gerçek hayat görselleri için optimize edilmiştir
 - OCR hatalarına karşı düzeltme mekanizması içerir
 - Geliştirmeye açıktır
+- 
 📦 Veri Kaynakları
 
 1. Gıda Veri Seti (OpenFoodFacts)
