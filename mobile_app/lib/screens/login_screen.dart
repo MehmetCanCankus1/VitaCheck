@@ -1,119 +1,85 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart'; // Yönleneceğimiz sayfayı içe aktarıyoruz
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  // Kullanıcının girdiği verileri yakalayan kontrolcüler
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo ve Başlık Alanı
-              const Center(
-                child: Icon(Icons.health_and_safety, size: 100, color: Colors.green),
-              ),
-              const SizedBox(height: 30),
+              // Üst Logo
+              const Icon(Icons.health_and_safety, size: 100, color: Colors.green),
+              const SizedBox(height: 20),
+
+              // Karşılama Başlığı
               const Text(
-                "VitaCheck'e\nHoş Geldiniz",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Gıda etiketlerini taramak ve sağlığınızı korumak için giriş yapın.",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                'VitaCheck\'e Hoş Geldiniz',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
               const SizedBox(height: 40),
 
-              // Email Input Alanı
+              // E-posta Giriş Alanı
               TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.email_outlined, color: Colors.green),
-                  labelText: "E-Posta Adresi",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.green, width: 2),
-                    borderRadius: BorderRadius.circular(15),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  labelText: 'E-posta',
+                  prefixIcon: const Icon(Icons.email, color: Colors.green),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Şifre Input Alanı
+              // Şifre Giriş Alanı
               TextField(
-                controller: _passwordController,
-                obscureText: true, // Şifreyi noktalı şekilde gizler
+                obscureText: true, // Metni gizler (***)
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock_outline, color: Colors.green),
-                  labelText: "Şifre",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.green, width: 2),
-                    borderRadius: BorderRadius.circular(15),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Şifremi Unuttum Metni
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {},
-                  child: const Text("Şifremi Unuttum?", style: TextStyle(color: Colors.green)),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Giriş Yap Butonu
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // API bağlantısını yapacağımız yer burası!
-                    print("Giriş yapılıyor... Email: ${_emailController.text}");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    elevation: 3,
-                  ),
-                  child: const Text("Giriş Yap", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  labelText: 'Şifre',
+                  prefixIcon: const Icon(Icons.lock, color: Colors.green),
                 ),
               ),
               const SizedBox(height: 30),
 
-              // Kayıt Ol Yönlendirmesi
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Hesabınız yok mu?", style: TextStyle(color: Colors.grey)),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text("Kayıt Ol", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+              // Giriş Yap Butonu
+              SizedBox(
+                width: double.infinity, // Ekran genişliğine yayar
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ],
-              )
+                  onPressed: () {
+                    // Butona basıldığında Ana Sayfaya (HomeScreen) yönlendirir
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Giriş Yap',
+                    style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
+} 
