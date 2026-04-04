@@ -34,3 +34,30 @@ python main.py testgorsel.jpg
 - Sistem gerçek hayat görselleri için optimize edilmiştir
 - OCR hatalarına karşı düzeltme mekanizması içerir
 - Geliştirmeye açıktır
+📦 Veri Kaynakları
+
+1. Gıda Veri Seti (OpenFoodFacts)
+
+Kaynak: Kaggle - World Food Facts / Official Data
+
+Veri Dosyası: en.openfoodfacts.org.products.tsv
+
+Açıklama: Dünya genelindeki gıda ürünlerinin içerik ve besin değerlerini kapsayan açık kaynaklı bir veritabanıdır. OCR ile etiketlerden okunan verilerin doğrulanması ve ürün eşleştirmesi için kullanılmıştır.
+
+2. Sağlık ve Beslenme Referansları
+
+Dünya Sağlık Örgütü (WHO)
+
+Sağlıklı Beslenme Rehberi (Genel): https://www.who.int/news-room/fact-sheets/detail/healthy-diet
+
+Bulaşıcı Olmayan Hastalıkların Önlenmesi: https://www.who.int/teams/noncommunicable-diseases/diet-physical-activity-and-health
+
+Açıklama: Sadece şeker ve tuz değil; yağ, doymuş yağ ve trans yağ gibi tüm temel besin ögeleri için küresel tüketim limitlerini ve risk kriterlerini belirlemek amacıyla referans alınmıştır.
+
+T.C. Sağlık Bakanlığı
+
+Sağlıklı Beslenme ve Hareketli Hayat Dairesi Başkanlığı: https://hsgm.saglik.gov.tr/tr/saglikli-beslenme-db.html
+
+Beslenme Rehberi:beslenme.saglik
+
+Açıklama: Türkiye'ye özgü beslenme standartları, yerel gıda tüketim rehberleri ve sağlıklı beslenme protokolleri bu resmi kaynaklardan referans alınmıştır.
