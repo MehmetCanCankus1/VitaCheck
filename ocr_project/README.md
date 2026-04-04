@@ -51,14 +51,10 @@ Dünya Sağlık Örgütü (WHO)
 
 Sağlıklı Beslenme Rehberi (Genel): https://www.who.int/news-room/fact-sheets/detail/healthy-diet
 
-Bulaşıcı Olmayan Hastalıkların Önlenmesi: https://www.who.int/teams/noncommunicable-diseases/diet-physical-activity-and-health
-
 Açıklama: Sadece şeker ve tuz değil; yağ, doymuş yağ ve trans yağ gibi tüm temel besin ögeleri için küresel tüketim limitlerini ve risk kriterlerini belirlemek amacıyla referans alınmıştır.
 
 T.C. Sağlık Bakanlığı
 
 Sağlıklı Beslenme ve Hareketli Hayat Dairesi Başkanlığı: https://hsgm.saglik.gov.tr/tr/saglikli-beslenme-db.html
-
-Beslenme Rehberi:beslenme.saglik
 
 Açıklama: Türkiye'ye özgü beslenme standartları, yerel gıda tüketim rehberleri ve sağlıklı beslenme protokolleri bu resmi kaynaklardan referans alınmıştır.
