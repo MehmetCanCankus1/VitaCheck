@@ -17,7 +17,7 @@
 * **Hicran:** Frontend & Mobil Uygulama Geliştirici (Flutter)
 * **Yusuf:** Yapay Zeka & Görüntü İşleme Uzmanı (Python, OCR/NLP)
 * **İrem:** Algoritma Analisti & Akademik Raporlama (Sağlık Formülleri, SRS)
-* **[Senin Adın]:** Scrum Master & Sistem Entegrasyonu
+* **Mehmetcan:** Scrum Master & Sistem Entegrasyonu
 
 ---
 
@@ -30,3 +30,4 @@
 ---
 
 ## 📑 Akademik Hedef (Makale )
+Proje kapsamında hazırlanan makale taslağına docs klasöründen ulaşılabilir
