@@ -28,7 +28,7 @@
 * **Veritabanı:** PostgreSQL / SQL Server
 
 ---
-### 📂 Proje Dokümantasyonu (1. Hafta)
+### 📂 Proje Dokümantasyonu 
 
  **📊 Kanban Panosu**  [Görüntüle](https://github.com/users/ckmkrm/projects/2) 
  **👁️ Vizyon Dokümanı**  [VISION.md](./VISION.md) 
