@@ -31,7 +31,9 @@
 ### 📂 Proje Dokümantasyonu 
 
  **📊 Kanban Panosu**  [Görüntüle](https://github.com/users/ckmkrm/projects/2) 
+ 
  **👁️ Vizyon Dokümanı**  [VISION.md](./VISION.md) 
+ 
  **📝 Gereksinim Analizi**  [S1_Gereksinim_Analizi.md](./docs/S1_Gereksinim_Analizi.md) 
 
 ## 📑 Akademik Hedef (Makale )
