@@ -6,79 +6,58 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA), // Hafif gri, temiz bir arka plan
+      backgroundColor: const Color(0xFFF4F9F9),
       appBar: AppBar(
-        title: const Text("VitaCheck Panel", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        title: const Text("VitaCheck", style: TextStyle(color: Color(0xFF20B2AA), fontWeight: FontWeight.w900)),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.person_outline)),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, '/profile'),
+            child: const Padding(
+              padding: EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(backgroundColor: Color(0xFFD4F0F0), child: Icon(Icons.person_outline_rounded, color: Color(0xFF20B2AA))),
+            ),
+          ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Merhaba Hicran! 👋",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal),
+            const Text("Hoş geldin, Hicran! 🌿", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF2C3E50))),
+            const SizedBox(height: 30),
+            Container(
+              width: double.infinity, padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(color: const Color(0xFF20B2AA), borderRadius: BorderRadius.circular(30)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Sağlık Durumun", style: TextStyle(color: Colors.white70, fontSize: 16)),
+                  const SizedBox(height: 10),
+                  const Text("Harika gidiyorsun! 🌟", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 25),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildStatItem("Şeker", "Güvenli", Icons.check_circle_outline),
+                      _buildStatItem("Glüten", "Yok", Icons.eco_outlined),
+                      _buildStatItem("Analiz", "3 Ürün", Icons.document_scanner_outlined),
+                    ],
+                  )
+                ],
+              ),
             ),
-            const Text("Bugün kendini nasıl hissediyorsun?", style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 25),
-
-            // Gösterge Kartları (Sağlık Uygulaması Havası Verir)
+            const SizedBox(height: 35),
+            const Text("Hızlı İşlemler", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 15),
             Row(
               children: [
-                _buildStatCard("Nabız", "72 bpm", Icons.favorite, Colors.redAccent),
+                _buildActionCard(context, "Barkod\nTara", Icons.qr_code_scanner_rounded, const Color(0xFFFFE0B2), const Color(0xFFF57C00)),
                 const SizedBox(width: 15),
-                _buildStatCard("Adım", "4.520", Icons.directions_walk, Colors.orange),
+                _buildActionCard(context, "Fotoğraf\nAnalizi", Icons.camera_alt_rounded, const Color(0xFFC8E6C9), const Color(0xFF388E3C), isCamera: true),
               ],
-            ),
-            const SizedBox(height: 25),
-
-            // ANA GÖREV: Kamera Modülü Kartı
-            const Text("İşlemler", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 15),
-
-            GestureDetector(
-              onTap: () {
-                // Birazdan buraya Kamera sayfasını bağlayacağız!
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Kamera Modülü Hazırlanıyor...")),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, spreadRadius: 2),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: Colors.teal.withOpacity(0.1), shape: BoxShape.circle),
-                      child: const Icon(Icons.camera_alt, color: Colors.teal, size: 30),
-                    ),
-                    const SizedBox(width: 20),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Kamerayı Başlat", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text("Analiz için fotoğraf çekin", style: TextStyle(color: Colors.grey)),
-                      ],
-                    ),
-                    const Spacer(),
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -86,26 +65,18 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Küçük Bilgi Kartları İçin Yardımcı Widget
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatItem(String title, String value, IconData icon) {
+    return Column(children: [Icon(icon, color: Colors.white), const SizedBox(height: 8), Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12))]);
+  }
+
+  Widget _buildActionCard(BuildContext context, String title, IconData icon, Color bgColor, Color iconColor, {bool isCamera = false}) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, spreadRadius: 2),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 10),
-            Text(title, style: const TextStyle(color: Colors.grey, fontSize: 14)),
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ],
+      child: GestureDetector(
+        onTap: () { if (isCamera) Navigator.pushNamed(context, '/camera'); },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(25)),
+          child: Column(children: [Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 32)), const SizedBox(height: 16), Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))]),
         ),
       ),
     );
