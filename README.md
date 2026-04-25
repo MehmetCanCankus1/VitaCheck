@@ -17,7 +17,7 @@
 * **Hicran:** Frontend & Mobil Uygulama Geliştirici (Flutter)
 * **Yusuf:** Yapay Zeka & Görüntü İşleme Uzmanı (Python, OCR/NLP)
 * **İrem:** Algoritma Analisti & Akademik Raporlama (Sağlık Formülleri, SRS)
-* **[Senin Adın]:** Scrum Master & Sistem Entegrasyonu
+* **Mehmetcan:** Scrum Master & Sistem Entegrasyonu
 
 ---
 
@@ -28,5 +28,13 @@
 * **Veritabanı:** PostgreSQL / SQL Server
 
 ---
+### 📂 Proje Dokümantasyonu 
+
+ **📊 Kanban Panosu**  [Görüntüle](https://github.com/users/ckmkrm/projects/2) 
+ 
+ **👁️ Vizyon Dokümanı**  [VISION.md](./VISION.md) 
+ 
+ **📝 Gereksinim Analizi**  [S1_Gereksinim_Analizi.md](./docs/S1_Gereksinim_Analizi.md) 
 
 ## 📑 Akademik Hedef (Makale )
+Proje kapsamında hazırlanan makale taslağına docs klasöründen ulaşılabilir

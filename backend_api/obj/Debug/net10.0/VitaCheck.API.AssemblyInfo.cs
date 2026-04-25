@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VitaCheck.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+805fddbf184e971bc787723d5aa84d1bcaaf3224")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+01f9d04b19e00db2077c2113f63b013820cf0e42")]
 [assembly: System.Reflection.AssemblyProductAttribute("VitaCheck.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VitaCheck.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
