@@ -53,3 +53,5 @@ graph TD
 3. **Ainsworth, B. E., et al. (2011):** *2011 Compendium of Physical Activities: A second update of codes and MET values.*
 4. **U.S. Food and Drug Administration (FDA) (2023):** *Gluten-Free Labeling of Foods.*
 5. **T.C. Sağlık Bakanlığı (2019):** *Türkiye Beslenme Rehberi (TÜBER).*
+
+;
