@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,7 +10,7 @@ void main() async {
   try {
     cameras = await availableCameras();
   } catch (e) {
-    print("Kamera yüklenirken hata oluştu: $e");
+    debugPrint("Kamera yüklenirken hata: $e");
   }
 
   runApp(VitaCheckApp(cameras: cameras));
@@ -28,7 +29,11 @@ class VitaCheckApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF20B2AA)),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
+      routes: {
+        '/home': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
+      },
     );
   }
 }
