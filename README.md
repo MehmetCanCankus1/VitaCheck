@@ -38,3 +38,4 @@
 
 ## 📑 Akademik Hedef (Makale )
 Proje kapsamında hazırlanan makale taslağına docs klasöründen ulaşılabilir
+
