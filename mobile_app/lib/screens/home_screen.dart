@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'profile_screen.dart';
 import 'history_screen.dart';
+import 'camera_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -35,7 +36,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton.icon(
               onPressed: () {
-                // Kamera ekranı kodunu buraya bağlayacağız
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CameraScreen()));
               },
               icon: const Icon(Icons.document_scanner_rounded, size: 32, color: Colors.white),
               label: const Text("Barkod veya İçerik Tara", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
