@@ -8,86 +8,377 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Bu verileri ileride Mehmet Can'ın veritabanına (SQL Server) göndereceğiz
   Map<String, bool> healthSettings = {
     "Gluten Alerjisi": false,
     "Laktoz Hassasiyeti": true,
     "Diyabet (Şeker Kontrolü)": false,
     "Vegan Beslenme": false,
     "Yüksek Tansiyon (Tuz Kontrolü)": false,
+    "Çölyak Hastalığı": false,
   };
+
+  final TextEditingController _ageController = TextEditingController(text: "22");
+  final TextEditingController _heightController = TextEditingController(text: "165");
+  final TextEditingController _weightController = TextEditingController(text: "58");
+  final TextEditingController _notesController = TextEditingController();
+
+  double get bmi {
+    final height = double.tryParse(_heightController.text) ?? 0;
+    final weight = double.tryParse(_weightController.text) ?? 0;
+    if (height == 0) return 0;
+    return weight / ((height / 100) * (height / 100));
+  }
+
+  String get bmiLabel {
+    if (bmi < 18.5) return "Zayıf";
+    if (bmi < 25) return "Normal";
+    if (bmi < 30) return "Fazla Kilolu";
+    return "Obez";
+  }
+
+  Color get bmiColor {
+    if (bmi < 18.5) return Colors.blue;
+    if (bmi < 25) return Colors.green;
+    if (bmi < 30) return Colors.orange;
+    return Colors.red;
+  }
+
+  int get targetCalorie {
+    final weight = double.tryParse(_weightController.text) ?? 0;
+    final height = double.tryParse(_heightController.text) ?? 0;
+    final age = double.tryParse(_ageController.text) ?? 0;
+    return (10 * weight + 6.25 * height - 5 * age + 5).toInt();
+  }
+
+  @override
+  void dispose() {
+    _ageController.dispose();
+    _heightController.dispose();
+    _weightController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F9F9),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text("Profil ve Sağlık", style: TextStyle(color: Color(0xFF2C3E50), fontWeight: FontWeight.bold)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF2C3E50)),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Color(0xFFD4F0F0),
-              child: Icon(Icons.person_rounded, size: 50, color: Color(0xFF20B2AA)),
+      body: CustomScrollView(
+        slivers: [
+          // Üst profil alanı
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            backgroundColor: const Color(0xFF2C7A4B),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
             ),
-            const SizedBox(height: 15),
-            const Text("Hicran K.", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            const Text("Software Engineering Student", style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 40),
-
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Hassasiyetlerinizi Seçin", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 15),
-
-            // Dinamik Alerji Listesi
-            ...healthSettings.keys.map((String key) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF2C7A4B), Color(0xFF20B2AA)],
+                  ),
                 ),
-                child: CheckboxListTile(
-                  title: Text(key, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  value: healthSettings[key],
-                  activeColor: const Color(0xFF20B2AA),
-                  onChanged: (bool? value) {
-                    setState(() => healthSettings[key] = value!);
-                  },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 40),
+                    Stack(
+                      children: [
+                        const CircleAvatar(
+                          radius: 45,
+                          backgroundColor: Colors.white24,
+                          child: Icon(Icons.person_rounded, size: 50, color: Colors.white),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.camera_alt, size: 16, color: Color(0xFF2C7A4B)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Hicran K.",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const Text(
+                      "Software Engineering Student",
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ],
                 ),
-              );
-            }).toList(),
-
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Sağlık profilin güncellendi! 🌿"), backgroundColor: Color(0xFF20B2AA)),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF20B2AA),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                child: const Text("Ayarları Kaydet", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
-          ],
+          ),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Yaş, Boy, Kilo
+                  _buildSectionTitle("Vücut Bilgileri"),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(child: _buildInputCard("Yaş", _ageController, "yıl")),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildInputCard("Boy", _heightController, "cm")),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildInputCard("Kilo", _weightController, "kg")),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // BMI Kartı
+                  _buildBMICard(),
+                  const SizedBox(height: 20),
+
+                  // Hedef Kalori
+                  _buildCalorieCard(),
+                  const SizedBox(height: 20),
+
+                  // Sağlık Hassasiyetleri
+                  _buildSectionTitle("Sağlık Hassasiyetleri"),
+                  const SizedBox(height: 12),
+                  ...healthSettings.keys.map((key) => _buildHealthToggle(key)),
+                  const SizedBox(height: 20),
+
+                  // Hastalık Geçmişi Notları
+                  _buildSectionTitle("Hastalık Geçmişi Notları"),
+                  const SizedBox(height: 12),
+                  _buildNotesField(),
+                  const SizedBox(height: 30),
+
+                  // Kaydet Butonu
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Sağlık profilin güncellendi! 🌿"),
+                            backgroundColor: Color(0xFF2C7A4B),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.save_rounded, color: Colors.white),
+                      label: const Text(
+                        "Profili Kaydet",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2C7A4B),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        elevation: 4,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF2C3E50),
+      ),
+    );
+  }
+
+  Widget _buildInputCard(String label, TextEditingController controller, String unit) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
+      ),
+      child: Column(
+        children: [
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              isDense: true,
+              suffix: Text(unit, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+            ),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2C3E50),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBMICard() {
+    final bmiValue = bmi;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: bmiColor.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                bmiValue.toStringAsFixed(1),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: bmiColor,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Vücut Kitle İndeksi (BMI)",
+                    style: TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(
+                  bmiLabel,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: bmiColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: (bmiValue / 40).clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: Colors.grey.shade200,
+                    color: bmiColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalorieCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2C7A4B).withOpacity(0.08),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFF2C7A4B).withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.local_fire_department_rounded,
+              color: Color(0xFF2C7A4B), size: 40),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Günlük Hedef Kalori",
+                  style: TextStyle(color: Colors.grey, fontSize: 13)),
+              Text(
+                "$targetCalorie kcal",
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2C7A4B),
+                ),
+              ),
+              const Text("Bazal metabolik hızınıza göre",
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHealthToggle(String key) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+      ),
+      child: SwitchListTile(
+        title: Text(key, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        value: healthSettings[key]!,
+        activeColor: const Color(0xFF2C7A4B),
+        onChanged: (val) => setState(() => healthSettings[key] = val),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+    );
+  }
+
+  Widget _buildNotesField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
+      ),
+      child: TextField(
+        controller: _notesController,
+        maxLines: 4,
+        decoration: InputDecoration(
+          hintText: "Örn: 2019'dan beri tip 2 diyabet, metformin kullanıyorum...",
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.all(16),
         ),
       ),
     );
