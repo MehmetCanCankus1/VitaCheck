@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -65,7 +66,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: const Color(0xFFF4F9F9),
       body: CustomScrollView(
         slivers: [
-          // Üst profil alanı
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
@@ -129,7 +129,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Yaş, Boy, Kilo
                   _buildSectionTitle("Vücut Bilgileri"),
                   const SizedBox(height: 12),
                   Row(
@@ -143,37 +142,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // BMI Kartı
                   _buildBMICard(),
                   const SizedBox(height: 20),
 
-                  // Hedef Kalori
                   _buildCalorieCard(),
                   const SizedBox(height: 20),
 
-                  // Sağlık Hassasiyetleri
                   _buildSectionTitle("Sağlık Hassasiyetleri"),
                   const SizedBox(height: 12),
                   ...healthSettings.keys.map((key) => _buildHealthToggle(key)),
                   const SizedBox(height: 20),
 
-                  // Hastalık Geçmişi Notları
                   _buildSectionTitle("Hastalık Geçmişi Notları"),
                   const SizedBox(height: 12),
                   _buildNotesField(),
                   const SizedBox(height: 30),
 
-                  // Kaydet Butonu
                   SizedBox(
                     width: double.infinity,
                     height: 60,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {});
+                      onPressed: () async {
+                        final selectedDiseases = healthSettings.entries
+                            .where((e) => e.value)
+                            .map((e) => e.key)
+                            .join(", ");
+
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => const Center(
+                            child: CircularProgressIndicator(
+                                color: Color(0xFF2C7A4B)),
+                          ),
+                        );
+
+                        final success = await ApiService.updateHealthProfile(
+                          userId: 1,
+                          chronicDisease: selectedDiseases,
+                          dailySugarLimit: 50.0,
+                        );
+
+                        Navigator.pop(context);
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Sağlık profilin güncellendi! 🌿"),
-                            backgroundColor: Color(0xFF2C7A4B),
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? "Sağlık profilin güncellendi! 🌿"
+                                  : "Bağlantı kurulamadı, tekrar dene.",
+                            ),
+                            backgroundColor:
+                            success ? const Color(0xFF2C7A4B) : Colors.red,
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -181,11 +201,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: const Icon(Icons.save_rounded, color: Colors.white),
                       label: const Text(
                         "Profili Kaydet",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2C7A4B),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
                         elevation: 4,
                       ),
                     ),
@@ -350,7 +374,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
       ),
       child: SwitchListTile(
-        title: Text(key, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        title: Text(key,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         value: healthSettings[key]!,
         activeColor: const Color(0xFF2C7A4B),
         onChanged: (val) => setState(() => healthSettings[key] = val),

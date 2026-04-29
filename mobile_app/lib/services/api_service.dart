@@ -1,11 +1,29 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Mehmet Can'ın sana vereceği Ngrok veya Canlı Sunucu Adresi
   static const String baseUrl = "http://MEHMETCANIN_IP:5117/api";
 
-  // 1. KULLANICI PROFİLİ GÜNCELLEME (UsersController'a gider)
+  // 1. KULLANICI BİLGİLERİNİ ÇEK
+  static Future<Map<String, dynamic>?> getUser(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/Users/$userId'),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Kullanıcı çekilemedi: $e");
+      return null;
+    }
+  }
+
+  // 2. SAĞLIK PROFİLİ GÜNCELLE
   static Future<bool> updateHealthProfile({
     required int userId,
     required String chronicDisease,
@@ -20,15 +38,14 @@ class ApiService {
           "dailySugarLimit": dailySugarLimit,
         }),
       );
-
-      return response.statusCode == 200; // Başarılıysa true döner
+      return response.statusCode == 200;
     } catch (e) {
-      print("Profil güncellenemedi: $e");
+      debugPrint("Profil güncellenemedi: $e");
       return false;
     }
   }
 
-  // 2. RİSK ANALİZİ (AnalysisController'a gider - Yusuf'un verileriyle çalışır)
+  // 3. RİSK ANALİZİ
   static Future<Map<String, dynamic>> checkProductRisk({
     required int userId,
     required String barcode,
@@ -48,7 +65,6 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        // Gelen yanıt: { isSafe: true/false, warningMessage: "..." }
         return jsonDecode(response.body);
       } else {
         throw Exception("Analiz Hatası: ${response.statusCode}");
