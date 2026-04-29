@@ -1,36 +1,32 @@
-# Besin Değeri OCR Sistemi
+# 🛡️ VitaCheck: Akıllı Sağlık ve Beslenme Yönetimi
 
-## Proje Amacı
-Bu proje, gıda ürünlerinin üzerindeki besin değerlerini (şeker, tuz, protein, yağ, kalori vb.) görsellerden otomatik olarak okumak için geliştirilmiştir.
+**VitaCheck**, paketli gıda içeriklerini yapay zeka (OCR ve NLP) ile analiz ederek, kullanıcının kişisel sağlık profiline (Diyabet, Çölyak vb.) göre anlık risk değerlendirmesi yapan ve kişiselleştirilmiş egzersiz önerileri sunan mobil bir karar destek sistemidir.
 
-## Kullanılan Teknolojiler
-- Python
-- EasyOCR
-- OpenCV
-- Numpy
+---
 
-## Çalışma Mantığı
-- Görselden metin OCR ile alınır
-- Satır ve sütun yapısı analiz edilir
-- En doğru değerler heuristik algoritma ile seçilir
-- OCR hataları (örneğin 95 → 9.5) düzeltilir
+## 🚀 Projenin Temel Özellikleri
+* **Yapay Zeka Destekli OCR:** Gıda etiketlerindeki karmaşık içerik listelerini Derin Öğrenme (Deep Learning) ile dijital veriye dönüştürme.
+* **Doğal Dil İşleme (NLP):** Okunan metin içinden besin öğelerini ve alerjenleri otomatik olarak ayıklama ve anlamlandırma.
+* **Kişiselleştirilmiş Karar Mekanizması:** Kullanıcının kronik hastalık kısıtlamalarına göre dinamik risk analizi ve uyarı sistemi.
+* **Egzersiz Entegrasyonu:** Tüketilen fazla besin değerlerini (şeker, kalori vb.) dengeleyecek kişisel aktivite planlaması.
 
-## Kurulum
-pip install -r requirements.txt
+---
 
-## Kullanım
-python main.py testgorsel.jpg
+## 👥 Ekip ve Görev Dağılımı
+* **Mehmetcan:** Backend & Veritabanı Mimarı (C# .NET Core, PostgreSQL)
+* **Hicran:** Frontend & Mobil Uygulama Geliştirici (Flutter)
+* **Yusuf:** Yapay Zeka & Görüntü İşleme Uzmanı (Python, OCR/NLP)
+* **İrem:** Algoritma Analisti & Akademik Raporlama (Sağlık Formülleri, SRS)
+* **[Senin Adın]:** Scrum Master & Sistem Entegrasyonu
 
-## Örnek Çıktı
-{
-  "sugar_g": 9.5,
-  "salt_g": 0.06,
-  "protein_g": 0.0,
-  "fat_g": 0.0,
-  "calories_kcal": 38.0
-}
+---
 
-## Notlar
-- Sistem gerçek hayat görselleri için optimize edilmiştir
-- OCR hatalarına karşı düzeltme mekanizması içerir
-- Geliştirmeye açıktır
+## 🛠️ Teknoloji Yığınımız (Tech Stack)
+* **Mobil:** Flutter (Dart)
+* **Backend:** ASP.NET Core Web API (C#)
+* **Yapay Zeka:** Python, OpenCV, Tesseract/EasyOCR
+* **Veritabanı:** PostgreSQL / SQL Server
+
+---
+
+## 📑 Akademik Hedef (Makale )

@@ -1,7 +1,17 @@
+# Security
+credentials.json
+.env
+
+# Python
 __pycache__/
-*.pyc
-*.jpg
-!testgorsel.jpg
-*.png
-tmp_*
-debug_*
+*.py[cod]
+*$py.class
+
+# Environments
+venv/
+.venv/
+
+# Data
+*.csv
+*.pkl
+*.csv
