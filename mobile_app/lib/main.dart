@@ -1,36 +1,34 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'package:camera/camera.dart';
 import 'screens/home_screen.dart';
-import 'screens/camera_screen.dart';
-import 'screens/result_screen.dart';
-import 'screens/profile_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const VitaCheckApp());
+
+  List<CameraDescription> cameras = [];
+  try {
+    cameras = await availableCameras();
+  } catch (e) {
+    print("Kamera yüklenirken hata oluştu: $e");
+  }
+
+  runApp(VitaCheckApp(cameras: cameras));
 }
 
 class VitaCheckApp extends StatelessWidget {
-  const VitaCheckApp({super.key});
+  final List<CameraDescription> cameras;
+  const VitaCheckApp({super.key, required this.cameras});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'VitaCheck',
       debugShowCheckedModeBanner: false,
+      title: 'VitaCheck',
       theme: ThemeData(
-        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF20B2AA)),
-        fontFamily: 'SF Pro Display', // Varsa Mac fontun, yoksa varsayılan kullanır
+        useMaterial3: true,
       ),
-      home: const LoginScreen(),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/camera': (context) => const CameraScreen(),
-        '/result': (context) => const ResultScreen(),
-        '/profile': (context) => const ProfileScreen(),
-      },
+      home: const HomeScreen(),
     );
   }
 }
