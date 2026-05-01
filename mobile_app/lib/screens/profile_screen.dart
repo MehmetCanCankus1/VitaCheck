@@ -11,17 +11,49 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, bool> healthSettings = {
     "Gluten Alerjisi": false,
-    "Laktoz Hassasiyeti": true,
+    "Laktoz Hassasiyeti": false,
     "Diyabet (Şeker Kontrolü)": false,
     "Vegan Beslenme": false,
     "Yüksek Tansiyon (Tuz Kontrolü)": false,
     "Çölyak Hastalığı": false,
   };
 
+  final List<String> _allergyOptions = [
+    "Fıstık", "Fındık", "Süt", "Yumurta", "Buğday",
+    "Soya", "Balık", "Kabuklu Deniz Ürünleri", "Susam",
+  ];
+  final List<String> _selectedAllergies = [];
+
+  final TextEditingController _medicationController = TextEditingController();
+  final List<String> _medications = [];
+
   final TextEditingController _ageController = TextEditingController(text: "22");
   final TextEditingController _heightController = TextEditingController(text: "165");
   final TextEditingController _weightController = TextEditingController(text: "58");
   final TextEditingController _notesController = TextEditingController();
+
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final user = await ApiService.getUser(1);
+    if (user != null && mounted) {
+      final chronicDiseases = (user['chronicDisease'] as String?) ?? "";
+      setState(() {
+        healthSettings.forEach((key, _) {
+          healthSettings[key] = chronicDiseases.contains(key);
+        });
+        _isLoading = false;
+      });
+    } else {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   double get bmi {
     final height = double.tryParse(_heightController.text) ?? 0;
@@ -57,11 +89,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _heightController.dispose();
     _weightController.dispose();
     _notesController.dispose();
+    _medicationController.dispose();
     super.dispose();
+  }
+
+  void _addMedication() {
+    final text = _medicationController.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        _medications.add(text);
+        _medicationController.clear();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF4F9F9),
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF2C7A4B)),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F9F9),
       body: CustomScrollView(
@@ -141,16 +193,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
                   _buildBMICard(),
                   const SizedBox(height: 20),
-
                   _buildCalorieCard(),
                   const SizedBox(height: 20),
 
                   _buildSectionTitle("Sağlık Hassasiyetleri"),
                   const SizedBox(height: 12),
                   ...healthSettings.keys.map((key) => _buildHealthToggle(key)),
+                  const SizedBox(height: 20),
+
+                  _buildSectionTitle("Alerjik Olduğu Gıdalar"),
+                  const SizedBox(height: 12),
+                  _buildAllergySection(),
+                  const SizedBox(height: 20),
+
+                  _buildSectionTitle("İlaç Kullanımı"),
+                  const SizedBox(height: 12),
+                  _buildMedicationSection(),
                   const SizedBox(height: 20),
 
                   _buildSectionTitle("Hastalık Geçmişi Notları"),
@@ -168,12 +228,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             .map((e) => e.key)
                             .join(", ");
 
+                        if (!mounted) return;
                         showDialog(
                           context: context,
                           barrierDismissible: false,
                           builder: (_) => const Center(
-                            child: CircularProgressIndicator(
-                                color: Color(0xFF2C7A4B)),
+                            child: CircularProgressIndicator(color: Color(0xFF2C7A4B)),
                           ),
                         );
 
@@ -183,6 +243,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           dailySugarLimit: 50.0,
                         );
 
+                        if (!mounted) return;
                         Navigator.pop(context);
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -192,8 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ? "Sağlık profilin güncellendi! 🌿"
                                   : "Bağlantı kurulamadı, tekrar dene.",
                             ),
-                            backgroundColor:
-                            success ? const Color(0xFF2C7A4B) : Colors.red,
+                            backgroundColor: success ? const Color(0xFF2C7A4B) : Colors.red,
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -201,15 +261,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: const Icon(Icons.save_rounded, color: Colors.white),
                       label: const Text(
                         "Profili Kaydet",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2C7A4B),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         elevation: 4,
                       ),
                     ),
@@ -224,14 +280,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildAllergySection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _allergyOptions.map((allergy) {
+              final selected = _selectedAllergies.contains(allergy);
+              return GestureDetector(
+                onTap: () => setState(() {
+                  if (selected) {
+                    _selectedAllergies.remove(allergy);
+                  } else {
+                    _selectedAllergies.add(allergy);
+                  }
+                }),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: selected ? const Color(0xFF2C7A4B) : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: selected ? const Color(0xFF2C7A4B) : Colors.grey.shade300,
+                    ),
+                  ),
+                  child: Text(
+                    allergy,
+                    style: TextStyle(
+                      color: selected ? Colors.white : Colors.grey.shade700,
+                      fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          if (_selectedAllergies.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              "Seçilenler: ${_selectedAllergies.join(', ')}",
+              style: const TextStyle(color: Color(0xFF2C7A4B), fontSize: 12),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedicationSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _medicationController,
+                  decoration: InputDecoration(
+                    hintText: "Örn: Metformin 500mg, günde 2",
+                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF2C7A4B)),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    isDense: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _addMedication,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF2C7A4B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
+                ),
+              ),
+            ],
+          ),
+          if (_medications.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ..._medications.asMap().entries.map((entry) => Container(
+              margin: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2C7A4B).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.medication_rounded, color: Color(0xFF2C7A4B), size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      entry.value,
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF2C3E50)),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _medications.removeAt(entry.key)),
+                    child: const Icon(Icons.close, color: Colors.red, size: 18),
+                  ),
+                ],
+              ),
+            )),
+          ] else
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text(
+                "Henüz ilaç eklenmedi",
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF2C3E50),
-      ),
+      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
     );
   }
 
@@ -241,7 +435,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
       ),
       child: Column(
         children: [
@@ -257,11 +451,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               isDense: true,
               suffix: Text(unit, style: const TextStyle(color: Colors.grey, fontSize: 11)),
             ),
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2C3E50),
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
           ),
         ],
       ),
@@ -275,7 +465,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
       ),
       child: Row(
         children: [
@@ -283,17 +473,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: bmiColor.withOpacity(0.12),
+              color: bmiColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 bmiValue.toStringAsFixed(1),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: bmiColor,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: bmiColor),
               ),
             ),
           ),
@@ -304,14 +490,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 const Text("Vücut Kitle İndeksi (BMI)",
                     style: TextStyle(color: Colors.grey, fontSize: 13)),
-                Text(
-                  bmiLabel,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: bmiColor,
-                  ),
-                ),
+                Text(bmiLabel,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: bmiColor)),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -334,14 +514,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C7A4B).withOpacity(0.08),
+        color: const Color(0xFF2C7A4B).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFF2C7A4B).withOpacity(0.2)),
+        border: Border.all(color: const Color(0xFF2C7A4B).withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.local_fire_department_rounded,
-              color: Color(0xFF2C7A4B), size: 40),
+          const Icon(Icons.local_fire_department_rounded, color: Color(0xFF2C7A4B), size: 40),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,11 +529,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(color: Colors.grey, fontSize: 13)),
               Text(
                 "$targetCalorie kcal",
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C7A4B),
-                ),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C7A4B)),
               ),
               const Text("Bazal metabolik hızınıza göre",
                   style: TextStyle(color: Colors.grey, fontSize: 12)),
@@ -371,13 +546,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10)],
       ),
       child: SwitchListTile(
-        title: Text(key,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        title: Text(key, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         value: healthSettings[key]!,
-        activeColor: const Color(0xFF2C7A4B),
+        activeThumbColor: const Color(0xFF2C7A4B),
         onChanged: (val) => setState(() => healthSettings[key] = val),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
@@ -389,7 +563,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
       ),
       child: TextField(
         controller: _notesController,

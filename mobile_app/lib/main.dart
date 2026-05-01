@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/result_screen.dart';
+import 'screens/register_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ class VitaCheckApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/result': (context) => const ResultScreen(),
+        '/register': (context) => const RegisterScreen(),
       },
     );
   }
