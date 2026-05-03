@@ -3,13 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Mehmetcan backend'i ayağa kaldırınca buraya URL gelecek
-  static const String baseUrl = "https://MEHMETCANIN_NGROK_URL/api";
+  static const String baseUrl = "http://10.0.2.2:5117/api";
 
   static const Map<String, String> _headers = {
     "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "true",
-    "User-Agent": "VitaCheck-Flutter",
   };
 
   // ─── USER MODELİ ───────────────────────────────────────────
@@ -17,7 +14,6 @@ class ApiService {
 
   // 1. KULLANICI BİLGİLERİNİ ÇEK
   // GET /api/Users/{id}
-  // Döner: { id, name, chronicDisease, dailySugarLimit }
   static Future<Map<String, dynamic>?> getUser(int userId) async {
     try {
       final response = await http
@@ -40,8 +36,6 @@ class ApiService {
 
   // 2. KULLANICI OLUŞTUR
   // POST /api/Users
-  // Gönder: { name, chronicDisease, dailySugarLimit }
-  // Döner: { id, name, chronicDisease, dailySugarLimit }
   static Future<Map<String, dynamic>?> createUser({
     required String name,
     required String chronicDisease,
@@ -73,8 +67,6 @@ class ApiService {
 
   // 3. SAĞLIK PROFİLİ GÜNCELLE
   // PUT /api/Users/{id}/health-profile
-  // Gönder: { chronicDisease, dailySugarLimit }
-  // Döner: { id, name, chronicDisease, dailySugarLimit }
   static Future<bool> updateHealthProfile({
     required int userId,
     required String chronicDisease,
@@ -100,9 +92,8 @@ class ApiService {
     }
   }
 
-  // 4. RİSK ANALİZİ (Yusuf'un OCR verisiyle çalışır)
+  // 4. RİSK ANALİZİ
   // POST /api/Analysis/check-risk
-  // Gönder: { userId, barcode, sugarAmount, hasGluten }
   // Döner: { isSafe, warningMessage }
   static Future<Map<String, dynamic>> checkProductRisk({
     required int userId,
@@ -128,7 +119,6 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
-        // Döner: { isSafe: true/false, warningMessage: "..." }
       } else if (response.statusCode == 404) {
         throw Exception("Kullanıcı bulunamadı.");
       } else {
