@@ -9,7 +9,11 @@ class ApiService {
     "Content-Type": "application/json",
   };
 
+  // ─── USER MODELİ ───────────────────────────────────────────
+  // User: { id, name, chronicDisease, dailySugarLimit }
+
   // 1. KULLANICI BİLGİLERİNİ ÇEK
+  // GET /api/Users/{id}
   static Future<Map<String, dynamic>?> getUser(int userId) async {
     try {
       final response = await http
@@ -31,6 +35,7 @@ class ApiService {
   }
 
   // 2. KULLANICI OLUŞTUR
+  // POST /api/Users
   static Future<Map<String, dynamic>?> createUser({
     required String name,
     required String chronicDisease,
@@ -61,6 +66,7 @@ class ApiService {
   }
 
   // 3. SAĞLIK PROFİLİ GÜNCELLE
+  // PUT /api/Users/{id}/health-profile
   static Future<bool> updateHealthProfile({
     required int userId,
     required String chronicDisease,
@@ -87,6 +93,8 @@ class ApiService {
   }
 
   // 4. RİSK ANALİZİ
+  // POST /api/Analysis/check-risk
+  // Döner: { isSafe, warningMessage }
   static Future<Map<String, dynamic>> checkProductRisk({
     required int userId,
     required String barcode,
