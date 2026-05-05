@@ -9,24 +9,13 @@ class ApiService {
     "Content-Type": "application/json",
   };
 
-  // ─── USER MODELİ ───────────────────────────────────────────
-  // User: { id, name, chronicDisease, dailySugarLimit }
-
   // 1. KULLANICI BİLGİLERİNİ ÇEK
-  // GET /api/Users/{id}
   static Future<Map<String, dynamic>?> getUser(int userId) async {
     try {
       final response = await http
-          .get(
-        Uri.parse('$baseUrl/Users/$userId'),
-        headers: _headers,
-      )
+          .get(Uri.parse('$baseUrl/Users/$userId'), headers: _headers)
           .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      }
-      debugPrint("Kullanıcı bulunamadı: ${response.statusCode}");
+      if (response.statusCode == 200) return jsonDecode(response.body);
       return null;
     } catch (e) {
       debugPrint("Kullanıcı çekilemedi: $e");
@@ -34,12 +23,25 @@ class ApiService {
     }
   }
 
-  // 2. KULLANICI OLUŞTUR
-  // POST /api/Users
+  // 2. SAĞLIK PROFİLİ ÇEK (YENİ)
+  static Future<Map<String, dynamic>?> getHealthProfile(int userId) async {
+    try {
+      final response = await http
+          .get(Uri.parse('$baseUrl/Users/$userId/health-profile'), headers: _headers)
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) return jsonDecode(response.body);
+      return null;
+    } catch (e) {
+      debugPrint("Profil çekilemedi: $e");
+      return null;
+    }
+  }
+
+  // 3. KULLANICI OLUŞTUR
   static Future<Map<String, dynamic>?> createUser({
     required String name,
     required String chronicDisease,
-    required double dailySugarLimit,
+    required int dailySugarLimit,
   }) async {
     try {
       final response = await http
@@ -53,11 +55,7 @@ class ApiService {
         }),
       )
           .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 201) {
-        return jsonDecode(response.body);
-      }
-      debugPrint("Kullanıcı oluşturulamadı: ${response.statusCode}");
+      if (response.statusCode == 201) return jsonDecode(response.body);
       return null;
     } catch (e) {
       debugPrint("Kullanıcı oluşturulamadı: $e");
@@ -65,12 +63,16 @@ class ApiService {
     }
   }
 
-  // 3. SAĞLIK PROFİLİ GÜNCELLE
-  // PUT /api/Users/{id}/health-profile
+  // 4. SAĞLIK PROFİLİ GÜNCELLE (GÜNCELLENDİ)
   static Future<bool> updateHealthProfile({
     required int userId,
     required String chronicDisease,
-    required double dailySugarLimit,
+    required int dailySugarLimit,
+    required bool hasHighBloodPressure,
+    required bool hasCeliacDisease,
+    required List<String> allergies,
+    required List<String> medications,
+    required String medicalHistoryNotes,
   }) async {
     try {
       final response = await http
@@ -80,10 +82,14 @@ class ApiService {
         body: jsonEncode({
           "chronicDisease": chronicDisease,
           "dailySugarLimit": dailySugarLimit,
+          "hasHighBloodPressure": hasHighBloodPressure,
+          "hasCeliacDisease": hasCeliacDisease,
+          "allergies": allergies,
+          "medications": medications,
+          "medicalHistoryNotes": medicalHistoryNotes,
         }),
       )
           .timeout(const Duration(seconds: 10));
-
       debugPrint("Profil güncelleme: ${response.statusCode} - ${response.body}");
       return response.statusCode == 200;
     } catch (e) {
@@ -92,9 +98,7 @@ class ApiService {
     }
   }
 
-  // 4. RİSK ANALİZİ
-  // POST /api/Analysis/check-risk
-  // Döner: { isSafe, warningMessage }
+  // 5. RİSK ANALİZİ
   static Future<Map<String, dynamic>> checkProductRisk({
     required int userId,
     required String barcode,
@@ -114,16 +118,9 @@ class ApiService {
         }),
       )
           .timeout(const Duration(seconds: 10));
-
-      debugPrint("Risk analizi: ${response.statusCode} - ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 404) {
-        throw Exception("Kullanıcı bulunamadı.");
-      } else {
-        throw Exception("Analiz hatası: ${response.statusCode}");
-      }
+      if (response.statusCode == 200) return jsonDecode(response.body);
+      else if (response.statusCode == 404) throw Exception("Kullanıcı bulunamadı.");
+      else throw Exception("Analiz hatası: ${response.statusCode}");
     } catch (e) {
       throw Exception("Bağlantı kurulamadı: $e");
     }

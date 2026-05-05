@@ -94,7 +94,32 @@ namespace VitaCheck.API.Controllers
             return NoContent();
         }
 
-        // PUT: api/Users/5/health-profile
+        // GET: api/Users/5/health-profile (YENİ EKLENDİ - Flutter ilk açıldığında verileri çeker)
+        [HttpGet("{id}/health-profile")]
+        public async Task<IActionResult> GetHealthProfile(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound(new { message = $"User with ID {id} not found." });
+            }
+
+            // Güvenlik açısından sadece profil verilerini gönderiyoruz (şifre vs gitmesin diye)
+            var profileData = new UpdateHealthProfileDto
+            {
+                ChronicDisease = user.ChronicDisease,
+                DailySugarLimit = user.DailySugarLimit,
+                HasHighBloodPressure = user.HasHighBloodPressure,
+                HasCeliacDisease = user.HasCeliacDisease,
+                Allergies = user.Allergies,
+                Medications = user.Medications,
+                MedicalHistoryNotes = user.MedicalHistoryNotes
+            };
+
+            return Ok(profileData);
+        }
+
+        // PUT: api/Users/5/health-profile (GÜNCELLENDİ)
         [HttpPut("{id}/health-profile")]
         public async Task<IActionResult> UpdateHealthProfile(int id, [FromBody] UpdateHealthProfileDto healthProfileDto)
         {
@@ -104,8 +129,14 @@ namespace VitaCheck.API.Controllers
                 return NotFound(new { message = $"User with ID {id} not found." });
             }
 
+            // Gelen yeni verileri veritabanı modeline aktarıyoruz
             user.ChronicDisease = healthProfileDto.ChronicDisease;
             user.DailySugarLimit = healthProfileDto.DailySugarLimit;
+            user.HasHighBloodPressure = healthProfileDto.HasHighBloodPressure;
+            user.HasCeliacDisease = healthProfileDto.HasCeliacDisease;
+            user.Allergies = healthProfileDto.Allergies;
+            user.Medications = healthProfileDto.Medications;
+            user.MedicalHistoryNotes = healthProfileDto.MedicalHistoryNotes;
 
             await _context.SaveChangesAsync();
 

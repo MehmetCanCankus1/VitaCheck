@@ -1,0 +1,4 @@
+backend_api/bin/
+backend_api/obj/
+.idea/
+backend_api/.idea/
