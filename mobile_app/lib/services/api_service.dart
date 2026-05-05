@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Mehmet Can'ın sana vereceği Ngrok veya Canlı Sunucu Adresi
-  static const String baseUrl = "http://MEHMETCANIN_IP:5117/api";
+  static const String baseUrl = "http://10.0.2.2:5117/api";;
 
   // 1. KULLANICI PROFİLİ GÜNCELLEME (UsersController'a gider)
   static Future<bool> updateHealthProfile({

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +30,8 @@ class VitaCheckApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF20B2AA)),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      // Uygulama artık direkt Kayıt Ol ekranıyla başlayacak patron.
+      home: const RegisterScreen(), 
     );
   }
 }
