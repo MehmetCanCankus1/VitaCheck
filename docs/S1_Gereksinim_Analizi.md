@@ -38,4 +38,3 @@
 3. **Kullanılabilirlik:** Arayüz, görme zorluğu çekebilecek kullanıcılar için yüksek kontrastlı renkler ve en az **14pt** font boyutu ile tasarlanacaktır.
 
 ---
-

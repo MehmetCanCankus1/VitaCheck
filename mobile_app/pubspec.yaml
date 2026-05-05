@@ -10,7 +10,11 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
+<<<<<<< HEAD
   camera: ^0.11.0+1
+=======
+  camera: ^0.12.0+1
+>>>>>>> 0784b16400b854b126046c80926089bc5127690c
   http: ^1.2.1
   image_picker: ^1.0.7
   mobile_scanner: ^7.2.0

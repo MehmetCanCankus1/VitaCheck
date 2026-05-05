@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/result_screen.dart';
 import 'screens/register_screen.dart';
 
 void main() async {
@@ -11,7 +12,7 @@ void main() async {
   try {
     cameras = await availableCameras();
   } catch (e) {
-    print("Kamera yüklenirken hata oluştu: $e");
+    debugPrint("Kamera yüklenirken hata: $e");
   }
 
   runApp(VitaCheckApp(cameras: cameras));
@@ -30,8 +31,13 @@ class VitaCheckApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF20B2AA)),
         useMaterial3: true,
       ),
-      // Uygulama artık direkt Kayıt Ol ekranıyla başlayacak patron.
-      home: const RegisterScreen(), 
+      home: const LoginScreen(),
+      routes: {
+        '/home': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/result': (context) => const ResultScreen(),
+        '/register': (context) => const RegisterScreen(),
+      },
     );
   }
 }

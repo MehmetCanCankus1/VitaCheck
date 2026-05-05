@@ -23,3 +23,4 @@ VitaCheck, bu karmaşıklığı ortadan kaldırmak için geliştirilmiş, yapay 
 
 ---
 *Bu doküman VitaCheck geliştirme ekibi tarafından proje gereksinimleri çerçevesinde oluşturulmuştur.*
+
