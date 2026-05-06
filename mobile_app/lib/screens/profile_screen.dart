@@ -41,13 +41,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-    final user = await ApiService.getUser(1);
-    if (user != null && mounted) {
-      final chronicDiseases = (user['chronicDisease'] as String?) ?? "";
+    final profile = await ApiService.getHealthProfile(1);
+    if (profile != null && mounted) {
       setState(() {
+        final chronicDiseases = (profile['chronicDisease'] as String?) ?? "";
         healthSettings.forEach((key, _) {
           healthSettings[key] = chronicDiseases.contains(key);
         });
+        healthSettings["Yüksek Tansiyon (Tuz Kontrolü)"] = profile['hasHighBloodPressure'] ?? false;
+        healthSettings["Çölyak Hastalığı"] = profile['hasCeliacDisease'] ?? false;
+
+        _selectedAllergies.clear();
+        final allergies = profile['allergies'] as List<dynamic>?;
+        if (allergies != null) _selectedAllergies.addAll(allergies.cast<String>());
+
+        _medications.clear();
+        final medications = profile['medications'] as List<dynamic>?;
+        if (medications != null) _medications.addAll(medications.cast<String>());
+
+        _notesController.text = profile['medicalHistoryNotes'] ?? "";
         _isLoading = false;
       });
     } else {
@@ -224,7 +236,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         final selectedDiseases = healthSettings.entries
-                            .where((e) => e.value)
+                            .where((e) => e.value &&
+                            e.key != "Yüksek Tansiyon (Tuz Kontrolü)" &&
+                            e.key != "Çölyak Hastalığı")
                             .map((e) => e.key)
                             .join(", ");
 
@@ -240,7 +254,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         final success = await ApiService.updateHealthProfile(
                           userId: 1,
                           chronicDisease: selectedDiseases,
-                          dailySugarLimit: 50.0,
+                          dailySugarLimit: 50,
+                          hasHighBloodPressure: healthSettings["Yüksek Tansiyon (Tuz Kontrolü)"] ?? false,
+                          hasCeliacDisease: healthSettings["Çölyak Hastalığı"] ?? false,
+                          allergies: List<String>.from(_selectedAllergies),
+                          medications: List<String>.from(_medications),
+                          medicalHistoryNotes: _notesController.text,
                         );
 
                         if (!mounted) return;
@@ -582,4 +601,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-}
+} 

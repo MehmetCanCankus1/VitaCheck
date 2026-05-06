@@ -56,7 +56,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       backgroundColor: const Color(0xFFF4F9F9),
       body: Stack(
         children: [
-          // Arka plan daireler
           Positioned(
             top: -80, left: -80,
             child: Container(
@@ -88,7 +87,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
           ),
 
-          // İçerik
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -101,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Logo + Hoşgeldin
                         Row(
                           children: [
                             Container(
@@ -153,7 +150,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 50),
 
-                        // E-posta
                         _buildSoftTextField(
                           controller: _emailController,
                           hint: "E-posta Adresin",
@@ -161,7 +157,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 16),
 
-                        // Şifre
                         _buildSoftTextField(
                           controller: _passwordController,
                           hint: "Şifren",
@@ -169,7 +164,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           isPassword: true,
                         ),
 
-                        // Şifremi unuttum
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -185,7 +179,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 8),
 
-                        // Giriş Yap butonu
                         SizedBox(
                           width: double.infinity,
                           height: 60,
@@ -219,7 +212,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 24),
 
-                        // Kayıt ol linki
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -229,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             ),
                             TextButton(
                               onPressed: () {
-                                // Navigator.pushNamed(context, '/register');
+                                Navigator.pushNamed(context, '/register');
                               },
                               child: const Text(
                                 "Kayıt Ol",

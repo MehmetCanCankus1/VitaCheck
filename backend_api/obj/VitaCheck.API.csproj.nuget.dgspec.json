@@ -1,25 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "/Users/mehmetcancankus/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj": {}
+    "/Users/hicrankagba/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj": {}
   },
   "projects": {
-    "/Users/mehmetcancankus/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj": {
+    "/Users/hicrankagba/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/mehmetcancankus/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj",
+        "projectUniqueName": "/Users/hicrankagba/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj",
         "projectName": "VitaCheck.API",
-        "projectPath": "/Users/mehmetcancankus/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj",
-        "packagesPath": "/Users/mehmetcancankus/.nuget/packages/",
-        "outputPath": "/Users/mehmetcancankus/Desktop/VitaCheck/backend_api/obj/",
+        "projectPath": "/Users/hicrankagba/Desktop/VitaCheck/backend_api/VitaCheck.API.csproj",
+        "packagesPath": "/Users/hicrankagba/.nuget/packages/",
+        "outputPath": "/Users/hicrankagba/Desktop/VitaCheck/backend_api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/mehmetcancankus/.nuget/NuGet/NuGet.Config"
+          "/Users/hicrankagba/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
+          "/Users/hicrankagba/.dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -82,7 +83,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.202/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "/Users/hicrankagba/.dotnet/sdk/10.0.203/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

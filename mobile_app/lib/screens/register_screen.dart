@@ -77,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     final user = await ApiService.createUser(
                       name: _nameController.text.trim(),
                       chronicDisease: "",
-                      dailySugarLimit: 50.0,
+                      dailySugarLimit: 50, 
                     );
                     setState(() => _isLoading = false);
                     if (!mounted) return;
