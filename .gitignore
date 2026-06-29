@@ -1,0 +1,11 @@
+# Python Sanal Ortamı (Bunu kesinlikle yükleme)
+venv/
+__pycache__/
+
+# Büyük Veri Setleri ve Modeller (Yusuf'un uyardığı kısım)
+*.parquet
+*.csv
+*.joblib
+
+# Mac Sistem Dosyaları
+.DS_Store

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../services/analysis_service.dart';
+import 'result_screen.dart';
+import 'package:intl/intl.dart';
+
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
@@ -8,82 +12,50 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  final List<Map<String, dynamic>> pastScans = [
-    {
-      "productName": "Sütlü Çikolatalı Gofret",
-      "date": "29 Nisan 2026",
-      "group": "Bugün",
-      "isSafe": false,
-      "reason": "Günlük Şeker Sınırı Aşıldı",
-      "icon": Icons.warning_amber_rounded,
-      "color": Colors.orange,
-    },
-    {
-      "productName": "Organik Yulaf Ezmesi",
-      "date": "27 Nisan 2026",
-      "group": "Bu Hafta",
-      "isSafe": true,
-      "reason": "Profilinize Uygun",
-      "icon": Icons.check_circle_outline_rounded,
-      "color": Color(0xFF2C7A4B),
-    },
-    {
-      "productName": "Tam Buğday Ekmeği",
-      "date": "25 Nisan 2026",
-      "group": "Bu Hafta",
-      "isSafe": false,
-      "reason": "Glüten İçerir (Çölyak Riski)",
-      "icon": Icons.error_outline_rounded,
-      "color": Colors.redAccent,
-    },
-    {
-      "productName": "Doğal Badem Sütü",
-      "date": "20 Nisan 2026",
-      "group": "Daha Önce",
-      "isSafe": true,
-      "reason": "Profilinize Uygun",
-      "icon": Icons.check_circle_outline_rounded,
-      "color": Color(0xFF2C7A4B),
-    },
-  ];
+  late Future<List<AnalysisResult>> _historyFuture;
 
-  Map<String, List<Map<String, dynamic>>> _groupedScans() {
-    final Map<String, List<Map<String, dynamic>>> grouped = {};
-    for (var scan in pastScans) {
-      final group = scan["group"] as String;
+  @override
+  void initState() {
+    super.initState();
+    _historyFuture = AnalysisService.fetchHistory(limit: 50);
+  }
+
+  Map<String, List<AnalysisResult>> _groupedScans(List<AnalysisResult> scans) {
+    final Map<String, List<AnalysisResult>> grouped = {};
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    for (var scan in scans) {
+      final scanDate = DateTime(scan.scannedAt.year, scan.scannedAt.month, scan.scannedAt.day);
+      final diff = today.difference(scanDate).inDays;
+      
+      String group;
+      if (diff == 0) {
+        group = "Bugün";
+      } else if (diff <= 7) {
+        group = "Bu Hafta";
+      } else {
+        group = "Daha Önce";
+      }
       grouped.putIfAbsent(group, () => []).add(scan);
     }
     return grouped;
   }
 
-  void _deleteScan(Map<String, dynamic> scan) {
-    setState(() {
-      pastScans.remove(scan);
-    });
+  void _deleteScan(AnalysisResult scan) {
+    // API deletion endpoint not provided, leaving as visual delete or no-op for now.
+    // For this task, we will just show a snackbar. We can't synchronously update FutureBuilder easily without refetch.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${scan["productName"]} silindi'),
+        content: Text('Silme işlemi şu anda API destekli değil.'),
         backgroundColor: const Color(0xFF2C7A4B),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        action: SnackBarAction(
-          label: 'Geri Al',
-          textColor: Colors.white,
-          onPressed: () {
-            setState(() {
-              pastScans.add(scan);
-            });
-          },
-        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final grouped = _groupedScans();
-    final groupOrder = ["Bugün", "Bu Hafta", "Daha Önce"];
-
     return Scaffold(
       backgroundColor: const Color(0xFFF4F9F9),
       appBar: AppBar(
@@ -101,20 +73,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: pastScans.isEmpty
-          ? _buildEmptyState()
-          : ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          for (final group in groupOrder)
-            if (grouped.containsKey(group)) ...[
-              _buildGroupHeader(group),
-              const SizedBox(height: 8),
-              for (final scan in grouped[group]!)
-                _buildScanCard(scan),
-              const SizedBox(height: 8),
+      body: FutureBuilder<List<AnalysisResult>>(
+        future: _historyFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Hata: ${snapshot.error}"));
+          }
+          
+          final pastScans = snapshot.data ?? [];
+          if (pastScans.isEmpty) {
+            return _buildEmptyState();
+          }
+
+          final grouped = _groupedScans(pastScans);
+          final groupOrder = ["Bugün", "Bu Hafta", "Daha Önce"];
+
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              for (final group in groupOrder)
+                if (grouped.containsKey(group)) ...[
+                  _buildGroupHeader(group),
+                  const SizedBox(height: 8),
+                  for (final scan in grouped[group]!)
+                    _buildScanCard(scan),
+                  const SizedBox(height: 8),
+                ],
             ],
-        ],
+          );
+        },
       ),
     );
   }
@@ -134,66 +124,78 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildScanCard(Map<String, dynamic> scan) {
-    return Dismissible(
-      key: UniqueKey(),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => _deleteScan(scan),
-      background: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.redAccent,
-          borderRadius: BorderRadius.circular(20),
+  Widget _buildScanCard(AnalysisResult scan) {
+    final isSafe = scan.overallRiskLevel == 'düşük';
+    final color = isSafe ? const Color(0xFF2C7A4B) : (scan.overallRiskLevel == 'orta' ? Colors.orange : Colors.red);
+    final icon = isSafe ? Icons.check_circle_outline_rounded : (scan.overallRiskLevel == 'orta' ? Icons.warning_amber_rounded : Icons.error_outline_rounded);
+    final dateStr = DateFormat('dd.MM.yyyy HH:mm').format(scan.scannedAt);
+    final reason = scan.topRiskDisease.isNotEmpty ? scan.topRiskDisease : scan.overallRiskLevel.toUpperCase();
+    final productName = scan.category.isNotEmpty ? scan.category : 'Ürün Analizi';
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => ResultScreen(result: scan)));
+      },
+      child: Dismissible(
+        key: Key(scan.scanId.toString()),
+        direction: DismissDirection.endToStart,
+        onDismissed: (_) => _deleteScan(scan),
+        background: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.redAccent,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 24),
+          child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 28),
         ),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24),
-        child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 28),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            leading: CircleAvatar(
+              radius: 25,
+              backgroundColor: color.withOpacity(0.15),
+              child: Icon(icon, color: color, size: 28),
             ),
-          ],
-        ),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(16),
-          leading: CircleAvatar(
-            radius: 25,
-            backgroundColor: (scan["color"] as Color).withOpacity(0.15),
-            child: Icon(scan["icon"], color: scan["color"], size: 28),
-          ),
-          title: Text(
-            scan["productName"],
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  scan["reason"],
-                  style: TextStyle(
-                    color: scan["color"],
-                    fontWeight: FontWeight.w600,
+            title: Text(
+              productName,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    reason,
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  scan["date"],
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    dateStr,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
+            trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
           ),
-          trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
         ),
       ),
     );
@@ -215,9 +217,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            "İlk ürününü taramak için kameraya git",
-            style: TextStyle(color: Colors.grey),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40.0),
+            child: Text(
+              "Henüz bir analiz yapmadınız. İlk ürününüzü taramak için butona tıklayın.",
+              style: TextStyle(color: Colors.grey, height: 1.5),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),

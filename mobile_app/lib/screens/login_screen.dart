@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../services/api_service.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -42,12 +42,31 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   Future<void> _handleLogin() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Lütfen e-posta ve şifrenizi girin!")),
+      );
+      return;
     }
+
+    setState(() => _isLoading = true);
+
+    final success = await ApiService.login(email, password);
+
     setState(() => _isLoading = false);
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false, arguments: ApiService.currentUserName);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("E-posta veya şifre hatalı!")),
+      );
+    }
   }
 
   @override
@@ -229,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             ),
                             TextButton(
                               onPressed: () {
-                                // Navigator.pushNamed(context, '/register');
+                                 Navigator.pushNamed(context, '/register');
                               },
                               child: const Text(
                                 "Kayıt Ol",

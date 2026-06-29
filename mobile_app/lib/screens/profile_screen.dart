@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -9,28 +12,24 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  Map<String, bool> healthSettings = {
-    "Gluten Alerjisi": false,
-    "Laktoz Hassasiyeti": false,
-    "Diyabet (Şeker Kontrolü)": false,
-    "Vegan Beslenme": false,
-    "Yüksek Tansiyon (Tuz Kontrolü)": false,
-    "Çölyak Hastalığı": false,
-  };
+  File? _profileImage;
+  final ImagePicker _picker = ImagePicker();
 
-  final List<String> _allergyOptions = [
-    "Fıstık", "Fındık", "Süt", "Yumurta", "Buğday",
-    "Soya", "Balık", "Kabuklu Deniz Ürünleri", "Susam",
-  ];
-  final List<String> _selectedAllergies = [];
+  bool hasDiabetes = false;
+  bool hasObesity = false;
+  bool hasHypertension = false;
+  bool hasHyperlipidemia = false;
+  bool hasCardiovascularRisk = false;
+  bool hasKidneyDiseaseRisk = false;
+  bool hasMetabolicSyndromeRisk = false;
+  bool hasFattyLiverRisk = false;
+  bool hasProteinEnergyDeficiency = false;
+  bool hasMineralImbalance = false;
 
-  final TextEditingController _medicationController = TextEditingController();
-  final List<String> _medications = [];
-
-  final TextEditingController _ageController = TextEditingController(text: "22");
-  final TextEditingController _heightController = TextEditingController(text: "165");
-  final TextEditingController _weightController = TextEditingController(text: "58");
-  final TextEditingController _notesController = TextEditingController();
+  // Sabit verileri (22, 165, 58) SİLDİK! Artık kutular boş gelecek.
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
 
   bool _isLoading = true;
 
@@ -41,28 +40,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-    final user = await ApiService.getUser(1);
-    if (user != null && mounted) {
-      final chronicDiseases = (user['chronicDisease'] as String?) ?? "";
-      setState(() {
-        healthSettings.forEach((key, _) {
-          healthSettings[key] = chronicDiseases.contains(key);
+    try {
+      final user = await ApiService.getUser(ApiService.requireUserId);
+      
+      if (user == null) {
+        debugPrint("HATA: API'den veri dönmedi!");
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Veritabanında 1 numaralı kullanıcı bulunamadı!")),
+          );
+        }
+        return;
+      }
+
+      debugPrint("DEBUG: Gelen Ham Veri -> \$user");
+      
+      if (mounted) {
+        setState(() {
+          _ageController.text = (user['age'] ?? user['Age'] ?? 0).toString();
+          _heightController.text = (user['height'] ?? user['Height'] ?? 0).toString();
+          _weightController.text = (user['weight'] ?? user['Weight'] ?? 0).toString();
+          
+          hasDiabetes = user['hasDiabetes'] ?? false;
+          hasObesity = user['hasObesity'] ?? false;
+          hasHypertension = user['hasHypertension'] ?? false;
+          hasHyperlipidemia = user['hasHyperlipidemia'] ?? false;
+          hasCardiovascularRisk = user['hasCardiovascularRisk'] ?? false;
+          hasKidneyDiseaseRisk = user['hasKidneyDiseaseRisk'] ?? false;
+          hasMetabolicSyndromeRisk = user['hasMetabolicSyndromeRisk'] ?? false;
+          hasFattyLiverRisk = user['hasFattyLiverRisk'] ?? false;
+          hasProteinEnergyDeficiency = user['hasProteinEnergyDeficiency'] ?? false;
+          hasMineralImbalance = user['hasMineralImbalance'] ?? false;
+          _isLoading = false;
         });
-        _isLoading = false;
-      });
-    } else {
-      if (mounted) setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      debugPrint("Hata yakalandı: \$e");
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Veritabanında 1 numaralı kullanıcı bulunamadı!")),
+        );
+      }
     }
   }
 
   double get bmi {
     final height = double.tryParse(_heightController.text) ?? 0;
     final weight = double.tryParse(_weightController.text) ?? 0;
-    if (height == 0) return 0;
+    if (height == 0 || weight == 0) return 0;
     return weight / ((height / 100) * (height / 100));
   }
 
+  // Veri yoksa hata vermemesi için "Veri Bekleniyor" durumlarını ekledik
   String get bmiLabel {
+    if (bmi == 0) return "Veri Bekleniyor";
     if (bmi < 18.5) return "Zayıf";
     if (bmi < 25) return "Normal";
     if (bmi < 30) return "Fazla Kilolu";
@@ -70,6 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Color get bmiColor {
+    if (bmi == 0) return Colors.grey;
     if (bmi < 18.5) return Colors.blue;
     if (bmi < 25) return Colors.green;
     if (bmi < 30) return Colors.orange;
@@ -80,7 +114,256 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final weight = double.tryParse(_weightController.text) ?? 0;
     final height = double.tryParse(_heightController.text) ?? 0;
     final age = double.tryParse(_ageController.text) ?? 0;
+    if (weight == 0 || height == 0 || age == 0) return 0;
     return (10 * weight + 6.25 * height - 5 * age + 5).toInt();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      try {
+        await ApiService.updateProfilePhoto(File(pickedFile.path));
+        setState(() {}); // Arayüzün yeni resmi çizmesi için
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+        }
+      }
+    }
+    if (mounted) Navigator.pop(context);
+  }
+
+  void _showPhotoPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.photo_library, color: Colors.blue),
+                ),
+                title: const Text("Galeriden Seç", style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () => _pickImage(ImageSource.gallery),
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.camera_alt, color: Colors.green),
+                ),
+                title: const Text("Kamerayı Kullan", style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () => _pickImage(ImageSource.camera),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEditProfileSheet(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final _nameController = TextEditingController(text: ApiService.currentUserName ?? "");
+    final _oldPasswordController = TextEditingController();
+    final _newPasswordController = TextEditingController();
+    final _confirmPasswordController = TextEditingController();
+    final passwordRegex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 24,
+                right: 24,
+                top: 24,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+              ),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 5,
+                          decoration: const BoxDecoration(
+                            color: Colors.black26,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Profilimi Düzenle",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2C3E50),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: "Ad Soyad",
+                          prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF2C7A4B)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFF2C7A4B), width: 2),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Ad Soyad boş bırakılamaz!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _oldPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: "Eski Şifre",
+                          prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF2C7A4B)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFF2C7A4B), width: 2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _newPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: "Yeni Şifre",
+                          prefixIcon: const Icon(Icons.lock_reset, color: Color(0xFF2C7A4B)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFF2C7A4B), width: 2),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value != null && value.isNotEmpty) {
+                            if (!passwordRegex.hasMatch(value)) {
+                              return 'En az 8 karakter, büyük/küçük harf, rakam ve özel karakter içermelidir.';
+                            }
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: "Yeni Şifre (Tekrar)",
+                          prefixIcon: const Icon(Icons.lock_reset, color: Color(0xFF2C7A4B)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFF2C7A4B), width: 2),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (_newPasswordController.text.isNotEmpty && value != _newPasswordController.text) {
+                            return 'Şifreler birbiriyle eşleşmiyor.';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (!_formKey.currentState!.validate()) return;
+
+                            final oldPass = _oldPasswordController.text.isNotEmpty ? _oldPasswordController.text : null;
+                            final newPass = _newPasswordController.text.isNotEmpty ? _newPasswordController.text : null;
+
+                            try {
+                              await ApiService.updateCredentials(
+                                ApiService.requireUserId,
+                                _nameController.text.trim(),
+                                oldPass,
+                                newPass,
+                              );
+                              
+                              if (!mounted) return;
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profil başarıyla güncellendi!"), backgroundColor: Colors.green));
+                              setState(() {}); // Sayfadaki ismin değişmesi için
+                            } catch (e) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', '')), backgroundColor: Colors.red));
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2C7A4B),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text(
+                            "Değişiklikleri Uygula",
+                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -88,19 +371,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _ageController.dispose();
     _heightController.dispose();
     _weightController.dispose();
-    _notesController.dispose();
-    _medicationController.dispose();
     super.dispose();
-  }
-
-  void _addMedication() {
-    final text = _medicationController.text.trim();
-    if (text.isNotEmpty) {
-      setState(() {
-        _medications.add(text);
-        _medicationController.clear();
-      });
-    }
   }
 
   @override
@@ -119,7 +390,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 250,
             pinned: true,
             backgroundColor: const Color(0xFF2C7A4B),
             leading: IconButton(
@@ -139,35 +410,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 40),
-                    Stack(
-                      children: [
-                        const CircleAvatar(
-                          radius: 45,
-                          backgroundColor: Colors.white24,
-                          child: Icon(Icons.person_rounded, size: 50, color: Colors.white),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.camera_alt, size: 16, color: Color(0xFF2C7A4B)),
+                    GestureDetector(
+                      onTap: () => _showPhotoPicker(context),
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 45,
+                            backgroundColor: Colors.white24,
+                            backgroundImage: ApiService.profilePhotoBase64 != null && ApiService.profilePhotoBase64!.isNotEmpty
+                                ? MemoryImage(base64Decode(ApiService.profilePhotoBase64!))
+                                : null,
+                            child: ApiService.profilePhotoBase64 == null || ApiService.profilePhotoBase64!.isEmpty
+                                ? const Icon(Icons.add_a_photo, size: 40, color: Colors.white70)
+                                : null,
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.camera_alt, size: 16, color: Color(0xFF2C7A4B)),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      "Hicran K.",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                    Text(
+                      ApiService.currentUserName ?? "Kullanıcı",
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
+                    const SizedBox(height: 4),
                     const Text(
-                      "Software Engineering Student",
+                      "Kişisel Sağlık Asistanım",
                       style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () => _showEditProfileSheet(context),
+                      icon: const Icon(Icons.edit, size: 16, color: Colors.white),
+                      label: const Text(
+                        "Profilimi Düzenle",
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white70),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                        minimumSize: const Size(0, 32),
+                      ),
                     ),
                   ],
                 ),
@@ -200,22 +495,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _buildSectionTitle("Sağlık Hassasiyetleri"),
                   const SizedBox(height: 12),
-                  ...healthSettings.keys.map((key) => _buildHealthToggle(key)),
-                  const SizedBox(height: 20),
-
-                  _buildSectionTitle("Alerjik Olduğu Gıdalar"),
-                  const SizedBox(height: 12),
-                  _buildAllergySection(),
-                  const SizedBox(height: 20),
-
-                  _buildSectionTitle("İlaç Kullanımı"),
-                  const SizedBox(height: 12),
-                  _buildMedicationSection(),
-                  const SizedBox(height: 20),
-
-                  _buildSectionTitle("Hastalık Geçmişi Notları"),
-                  const SizedBox(height: 12),
-                  _buildNotesField(),
+                  _buildHealthToggle("1. Diyabet", hasDiabetes, (val) => setState(() => hasDiabetes = val)),
+                  _buildHealthToggle("2. Obezite", hasObesity, (val) => setState(() => hasObesity = val)),
+                  _buildHealthToggle("3. Hipertansiyon", hasHypertension, (val) => setState(() => hasHypertension = val)),
+                  _buildHealthToggle("4. Hiperlipidemi", hasHyperlipidemia, (val) => setState(() => hasHyperlipidemia = val)),
+                  _buildHealthToggle("5. Kardiyovasküler Hastalık Riski", hasCardiovascularRisk, (val) => setState(() => hasCardiovascularRisk = val)),
+                  _buildHealthToggle("6. Böbrek Hastalığı Riski", hasKidneyDiseaseRisk, (val) => setState(() => hasKidneyDiseaseRisk = val)),
+                  _buildHealthToggle("7. Metabolik Sendrom Riski", hasMetabolicSyndromeRisk, (val) => setState(() => hasMetabolicSyndromeRisk = val)),
+                  _buildHealthToggle("8. Karaciğer Yağlanması Riski", hasFattyLiverRisk, (val) => setState(() => hasFattyLiverRisk = val)),
+                  _buildHealthToggle("9. Protein/Enerji Yetersizliği Riski", hasProteinEnergyDeficiency, (val) => setState(() => hasProteinEnergyDeficiency = val)),
+                  _buildHealthToggle("10. Mineral Dengesizliği Riski", hasMineralImbalance, (val) => setState(() => hasMineralImbalance = val)),
                   const SizedBox(height: 30),
 
                   SizedBox(
@@ -223,11 +512,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     height: 60,
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        final selectedDiseases = healthSettings.entries
-                            .where((e) => e.value)
-                            .map((e) => e.key)
-                            .join(", ");
-
                         if (!mounted) return;
                         showDialog(
                           context: context,
@@ -238,9 +522,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
 
                         final success = await ApiService.updateHealthProfile(
-                          userId: 1,
-                          chronicDisease: selectedDiseases,
+                          userId: ApiService.requireUserId,
+                          age: int.tryParse(_ageController.text.trim()) ?? 0,
+                          height: double.tryParse(_heightController.text.trim()) ?? 0.0,
+                          weight: double.tryParse(_weightController.text.trim()) ?? 0.0,
                           dailySugarLimit: 50.0,
+                          hasDiabetes: hasDiabetes,
+                          hasObesity: hasObesity,
+                          hasHypertension: hasHypertension,
+                          hasHyperlipidemia: hasHyperlipidemia,
+                          hasCardiovascularRisk: hasCardiovascularRisk,
+                          hasKidneyDiseaseRisk: hasKidneyDiseaseRisk,
+                          hasMetabolicSyndromeRisk: hasMetabolicSyndromeRisk,
+                          hasFattyLiverRisk: hasFattyLiverRisk,
+                          hasProteinEnergyDeficiency: hasProteinEnergyDeficiency,
+                          hasMineralImbalance: hasMineralImbalance,
                         );
 
                         if (!mounted) return;
@@ -271,152 +567,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // Çıkış Yap Butonu
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        ApiService.logout();
+                        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                      },
+                      icon: const Icon(Icons.logout_rounded, color: Colors.red),
+                      label: const Text(
+                        "Hesaptan Çıkış Yap",
+                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red, width: 2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: Colors.red.withValues(alpha: 0.05),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAllergySection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _allergyOptions.map((allergy) {
-              final selected = _selectedAllergies.contains(allergy);
-              return GestureDetector(
-                onTap: () => setState(() {
-                  if (selected) {
-                    _selectedAllergies.remove(allergy);
-                  } else {
-                    _selectedAllergies.add(allergy);
-                  }
-                }),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: selected ? const Color(0xFF2C7A4B) : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: selected ? const Color(0xFF2C7A4B) : Colors.grey.shade300,
-                    ),
-                  ),
-                  child: Text(
-                    allergy,
-                    style: TextStyle(
-                      color: selected ? Colors.white : Colors.grey.shade700,
-                      fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          if (_selectedAllergies.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Text(
-              "Seçilenler: ${_selectedAllergies.join(', ')}",
-              style: const TextStyle(color: Color(0xFF2C7A4B), fontSize: 12),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMedicationSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _medicationController,
-                  decoration: InputDecoration(
-                    hintText: "Örn: Metformin 500mg, günde 2",
-                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF2C7A4B)),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    isDense: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: _addMedication,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF2C7A4B),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 20),
-                ),
-              ),
-            ],
-          ),
-          if (_medications.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            ..._medications.asMap().entries.map((entry) => Container(
-              margin: const EdgeInsets.only(bottom: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2C7A4B).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.medication_rounded, color: Color(0xFF2C7A4B), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      entry.value,
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF2C3E50)),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _medications.removeAt(entry.key)),
-                    child: const Icon(Icons.close, color: Colors.red, size: 18),
-                  ),
-                ],
-              ),
-            )),
-          ] else
-            const Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Text(
-                "Henüz ilaç eklenmedi",
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ),
         ],
       ),
     );
@@ -445,10 +622,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             controller: controller,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
+            // Sen her sayı girdiğinde ekranı yenileyip BMI'ı hesaplayacak kod:
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               border: InputBorder.none,
               isDense: true,
+              hintText: "0",
+              hintStyle: TextStyle(color: Colors.grey.shade300),
               suffix: Text(unit, style: const TextStyle(color: Colors.grey, fontSize: 11)),
             ),
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
@@ -473,12 +653,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: bmiColor.withValues(alpha: 0.12),
+              color: bmiValue == 0 ? Colors.grey.shade200 : bmiColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
-                bmiValue.toStringAsFixed(1),
+                bmiValue == 0 ? "-" : bmiValue.toStringAsFixed(1),
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: bmiColor),
               ),
             ),
@@ -491,12 +671,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Text("Vücut Kitle İndeksi (BMI)",
                     style: TextStyle(color: Colors.grey, fontSize: 13)),
                 Text(bmiLabel,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: bmiColor)),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: bmiColor)),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
-                    value: (bmiValue / 40).clamp(0.0, 1.0),
+                    value: bmiValue == 0 ? 0 : (bmiValue / 40).clamp(0.0, 1.0),
                     minHeight: 8,
                     backgroundColor: Colors.grey.shade200,
                     color: bmiColor,
@@ -511,6 +691,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildCalorieCard() {
+    final cal = targetCalorie;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -520,7 +701,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.local_fire_department_rounded, color: Color(0xFF2C7A4B), size: 40),
+          Icon(Icons.local_fire_department_rounded, 
+            color: cal == 0 ? Colors.grey : const Color(0xFF2C7A4B), size: 40),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -528,8 +710,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Text("Günlük Hedef Kalori",
                   style: TextStyle(color: Colors.grey, fontSize: 13)),
               Text(
-                "$targetCalorie kcal",
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C7A4B)),
+                cal == 0 ? "Hesaplanıyor..." : "$cal kcal",
+                style: TextStyle(
+                  fontSize: cal == 0 ? 18 : 24, 
+                  fontWeight: FontWeight.bold, 
+                  color: cal == 0 ? Colors.grey : const Color(0xFF2C7A4B)
+                ),
               ),
               const Text("Bazal metabolik hızınıza göre",
                   style: TextStyle(color: Colors.grey, fontSize: 12)),
@@ -540,7 +726,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildHealthToggle(String key) {
+  Widget _buildHealthToggle(String title, bool value, ValueChanged<bool> onChanged) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
@@ -549,37 +735,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10)],
       ),
       child: SwitchListTile(
-        title: Text(key, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-        value: healthSettings[key]!,
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        value: value,
         activeThumbColor: const Color(0xFF2C7A4B),
-        onChanged: (val) => setState(() => healthSettings[key] = val),
+        onChanged: onChanged,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
     );
   }
 
-  Widget _buildNotesField() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
-      ),
-      child: TextField(
-        controller: _notesController,
-        maxLines: 4,
-        decoration: InputDecoration(
-          hintText: "Örn: 2019'dan beri tip 2 diyabet, metformin kullanıyorum...",
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
 }

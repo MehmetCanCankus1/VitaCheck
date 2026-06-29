@@ -1,0 +1,12 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# VitaCheck Core Engine — Bağımlılıklar
+# Kurulum: pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Google Cloud Vision (OCR Motoru)
+google-cloud-vision>=3.7.0
+
+# Görüntü işleme
+opencv-python>=4.9.0
+numpy>=1.26.0
+Pillow>=10.2.0

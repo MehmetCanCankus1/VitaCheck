@@ -11,5 +11,7 @@ namespace VitaCheck.API.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<WaterIntake> WaterIntakes { get; set; }
+        public DbSet<UserScanResult> UserScanResults { get; set; }
     }
 }

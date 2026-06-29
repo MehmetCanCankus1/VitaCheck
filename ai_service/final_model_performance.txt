@@ -1,0 +1,30 @@
+VitaCheck Model Egitim ve Dogrulama Raporu
+==========================================
+
+Egitim Satir Sayisi : 2,258,809
+Test Satir Sayisi   : 398,614
+
+En Iyi Hiperparametreler (GridSearchCV):
+  estimator__max_depth: 15
+  estimator__min_samples_split: 20
+  estimator__n_estimators: 150
+
+5-Fold Cross Validation Sonuclari (MAE):
+  Fold 1: 0.989
+  Fold 2: 0.996
+  Fold 3: 0.987
+  Fold 4: 0.986
+  Fold 5: 0.989
+  Ortalama MAE: 0.989 (+/- 0.003)
+
+Hastalik Bazli Test MAE Sonuclari:
+  Diyabet               : 0.871
+  Hipertansiyon         : 0.411
+  Obezite               : 0.729
+  KVH                   : 0.571
+  Hiperlipidemi         : 0.595
+  Bobrek                : 0.498
+  Metabolik_Sendrom     : 0.797
+  NAFLD                 : 0.684
+  Malnutrisyon          : 0.514
+  Mineral_Dengesi       : 0.336

@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'profile_screen.dart';
 import 'history_screen.dart';
 import 'camera_screen.dart';
-
+import '../services/api_service.dart';
+import '../services/analysis_service.dart';
+import 'package:intl/intl.dart';
+import 'result_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -16,20 +20,48 @@ class _HomeScreenState extends State<HomeScreen>
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
 
-  int _waterCount = 3; // içilen bardak sayısı
-  final int _waterGoal = 8;
+  int _waterCount = 0; // içilen bardak sayısı
+  int _waterGoal = 8;
+  String _userName = "Kullanıcı";
+  List<AnalysisResult> _recentScans = [];
 
-  final List<String> _motivations = [
-    "Sağlıklı beslenme bir yaşam tarzıdır! 🌿",
-    "Bugün doğru seçimler yap, yarın daha iyi hisset! 💪",
-    "Vücudun için en iyisini seç! ✨",
-    "Her etiket okuma bir adım ileri! 🎯",
-    "Sağlığın en büyük yatırımın! 🌱",
+  final List<String> dailyTips = [
+    "Ketçap, mayonez ve salata soslarının içinde beklediğinden çok daha fazla gizli şeker bulunur.",
+    "Su içmeyi unutuyorsan, masanda her zaman dolu bir bardak bulundur. Bu taktik tüketimi %30 artırır!",
+    "Paketlerdeki 'İlave şeker içermez' yazısı aldatıcı olabilir. Ürünün kendi meyve şekeri de kan şekerini yükseltir.",
+    "Günlük tuz limitini aşmamak için paketli kuruyemişler yerine çiğ ve kavrulmamış olanları tercih et.",
+    "Her esmer ekmek tam buğday değildir. Gerçek tam buğday için içindekilerde ilk sırada 'Tam Buğday Unu' yazmalıdır.",
+    "Meyve suyu içmek yerine meyvenin kendisini ye. Lifleri kaybetmemek kan şekerini dengede tutar.",
+    "Yemekten 20 dakika önce bir bardak su içmek, sofrada daha hızlı doymana yardımcı olur.",
+    "Bir ürünün 'İçindekiler' listesinde ilk sırada yazan madde, o ürünün içinde en çok bulunan maddedir.",
+    "Şekersiz veya 'Zero' gazlı içeceklerdeki yapay tatlandırıcılar, beyni kandırarak daha çok acıkmana sebep olabilir.",
+    "Konserve ve turşularda raf ömrünü uzatmak için gizli ve yüksek miktarda tuz (sodyum) kullanılır.",
+    "Yemekten sonra atacağın 15 dakikalık hafif bir adım, sindirimi rahatlatır ve kan şekerini düşürür.",
+    "Ceviz, badem ve zeytinyağı gibi sağlıklı yağlar seni uzun süre tok tutar.",
+    "Uyku eksikliği iştah hormonlarını tetikler. Günde 7 saatten az uyumak tatlı krizlerine yol açabilir.",
+    "Gün içinde içtiğin çay ve kahveler su yerine geçmez, aksine vücuttan su atılmasına (ödem) sebep olur.",
+    "Marketlerde satılan meyveli yoğurtlar adeta birer tatlıdır. Yoğurdunu evde taze meyveyle kendin karıştır.",
+    "Porsiyon kontrolü yapmakta zorlanıyorsan, yemeklerini daha küçük tabaklarda servis etmeyi dene.",
+    "Kahvaltıda yulaf ezmesi tüketmek, içerdiği yüksek lif sayesinde seni öğlene kadar tok tutar.",
+    "%70 ve üzeri kakao içeren bitter çikolatalar, ölçülü tüketildiğinde harika bir antioksidan kaynağıdır.",
+    "Gece atıştırma isteği geldiğinde önce bir bardak su veya papatya çayı iç, bazen susuzluk açlıkla karışır.",
+    "Fast food menülerindeki 'Sadece 10 TL farkla büyük boy' teklifleri, aslında fazladan 500 kalori almaktır.",
+    "Masum görünen bir salatayı, üzerine döktüğün mayonezli soslar bir kalori bombasına çevirebilir.",
+    "Yemekleri yavaş yemek ve çok çiğnemek, beynine 'doydum' sinyalinin daha çabuk gitmesini sağlar.",
+    "Tatlı krizlerinde şerbetli tatlılar yerine sütlü tatlıları (sütlaç, puding) tercih etmek kan şekerini daha az yorar.",
+    "Karbonhidratları tek başına değil, yanında bir proteinle tüket (Örn: Elma ve ceviz). Kan şekerin fırlamaz.",
+    "Üzerinde 'Diyet' veya 'Light' yazan ürünler sıfır kalori demek değildir, porsiyon kontrolünü elden bırakma.",
+    "Tabağının ne kadar renkli olduğuna dikkat et. Farklı renklerdeki sebzeler farklı vitaminleri temsil eder.",
+    "Paketli atıştırmalıklardaki Çin Tuzu (MSG), doyma hissini baskılayarak paketin tamamını bitirmene sebep olur.",
+    "Haftada en az bir gün balık tüketmek, kalp ve beyin sağlığın için gerekli Omega-3 yağ asitlerini sağlar.",
+    "Cips veya bisküvi yerine porsiyonu abartılmamış kuru meyveler hem tatlı ihtiyacını keser hem enerji verir.",
+    "Kendini uzun süre aç bırakmak (şok diyetler) metabolizmanı yavaşlatır ve sonraki öğünde daha çok yedirir.",
   ];
 
   String get _todayMotivation {
-    final day = DateTime.now().weekday;
-    return _motivations[day % _motivations.length];
+    // 2024 başından bugüne geçen gün sayısı — aylar 28/30/31 çekse de kusursuz döner
+    final int passedDays = DateTime.now().difference(DateTime(2024, 1, 1)).inDays;
+    return dailyTips[passedDays % dailyTips.length];
   }
 
   @override
@@ -45,6 +77,44 @@ class _HomeScreenState extends State<HomeScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final userId = ApiService.requireUserId;
+    
+    // Su ve Kullanıcı bilgisi
+    final water = await ApiService.getTodayWater(userId);
+    final user = await ApiService.getUser(userId);
+
+    int goal = 8;
+    String fetchedName = "Kullanıcı";
+    if (user != null) {
+      fetchedName = user['name'] ?? user['Name'] ?? "Kullanıcı";
+      fetchedName = fetchedName.split(' ')[0]; // Sadece ilk isim
+      
+      // (Kilo * 0.033) / 0.25
+      final weight = double.tryParse(user['weight']?.toString() ?? user['Weight']?.toString() ?? '0') ?? 0.0;
+      if (weight > 0) {
+        goal = ((weight * 0.033) / 0.25).round();
+      }
+    }
+
+    List<AnalysisResult> history = [];
+    try {
+      history = await AnalysisService.fetchHistory(limit: 3);
+    } catch (e) {
+      debugPrint("Geçmiş alınamadı: $e");
+    }
+
+    if (mounted) {
+      setState(() {
+        _waterCount = water;
+        _waterGoal = goal;
+        _userName = fetchedName;
+        _recentScans = history;
+      });
+    }
   }
 
   @override
@@ -84,34 +154,39 @@ class _HomeScreenState extends State<HomeScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      "Merhaba Hicran 👋",
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Merhaba $_userName 👋",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          const Text(
+                                            "Vücudun için en iyisini seç! ✨",
+                                            style: TextStyle(
+                                                color: Colors.white70, fontSize: 12),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _todayMotivation,
-                                      style: const TextStyle(
-                                          color: Colors.white70, fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                                GestureDetector(
-                                  onTap: () => Navigator.push(
+                                    const SizedBox(width: 16),
+                                    GestureDetector(
+                                      onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => const ProfileScreen()),
-                                  ),
+                                  ).then((_) => _loadData()),
                                   child: Container(
                                     padding: const EdgeInsets.all(3),
                                     decoration: BoxDecoration(
@@ -119,26 +194,18 @@ class _HomeScreenState extends State<HomeScreen>
                                       border: Border.all(
                                           color: Colors.white, width: 2),
                                     ),
-                                    child: const CircleAvatar(
+                                    child: CircleAvatar(
                                       radius: 24,
                                       backgroundColor: Colors.white24,
-                                      child: Icon(Icons.person_rounded,
-                                          color: Colors.white, size: 28),
+                                      backgroundImage: ApiService.profilePhotoBase64 != null && ApiService.profilePhotoBase64!.isNotEmpty
+                                          ? MemoryImage(base64Decode(ApiService.profilePhotoBase64!))
+                                          : null,
+                                      child: ApiService.profilePhotoBase64 == null || ApiService.profilePhotoBase64!.isNotEmpty == false
+                                          ? const Icon(Icons.person_rounded, color: Colors.white, size: 28)
+                                          : null,
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                _buildStatChip(Icons.bar_chart, "12 Analiz"),
-                                const SizedBox(width: 10),
-                                _buildStatChip(
-                                    Icons.check_circle_outline, "9 Güvenli"),
-                                const SizedBox(width: 10),
-                                _buildStatChip(
-                                    Icons.warning_amber, "3 Riskli"),
                               ],
                             ),
                           ],
@@ -248,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen>
                             context,
                             icon: Icons.history_rounded,
                             title: "Geçmiş\nAnalizlerim",
-                            subtitle: "12 kayıt",
+                            subtitle: "Tümünü Gör",
                             color: const Color(0xFF3498DB),
                             onTap: () => Navigator.push(
                               context,
@@ -269,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen>
                               context,
                               MaterialPageRoute(
                                   builder: (_) => const ProfileScreen()),
-                            ),
+                            ).then((_) => _loadData()),
                           ),
                         ),
                       ],
@@ -313,23 +380,40 @@ class _HomeScreenState extends State<HomeScreen>
                       ],
                     ),
                     const SizedBox(height: 10),
-                    _buildRecentScan(
-                      "Sütlü Çikolatalı Gofret",
-                      "Bugün",
-                      false,
-                      "Şeker sınırı aşıldı",
-                      Colors.orange,
-                      Icons.warning_amber_rounded,
-                    ),
-                    const SizedBox(height: 10),
-                    _buildRecentScan(
-                      "Organik Yulaf Ezmesi",
-                      "Dün",
-                      true,
-                      "Profilinize uygun",
-                      const Color(0xFF2C7A4B),
-                      Icons.check_circle_outline_rounded,
-                    ),
+                    if (_recentScans.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: const Text(
+                          "Henüz bir analiz yapmadınız. İlk ürününüzü taramak için butona tıklayın.",
+                          style: TextStyle(color: Colors.grey, height: 1.5),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    else
+                      ..._recentScans.map((scan) {
+                        final isSafe = scan.overallRiskLevel == 'düşük';
+                        final color = isSafe ? const Color(0xFF2C7A4B) : (scan.overallRiskLevel == 'orta' ? Colors.orange : Colors.red);
+                        final icon = isSafe ? Icons.check_circle_outline_rounded : (scan.overallRiskLevel == 'orta' ? Icons.warning_amber_rounded : Icons.error_outline_rounded);
+                        final dateStr = DateFormat('dd.MM.yyyy').format(scan.scannedAt);
+                        
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _buildRecentScan(
+                            scan.category.isNotEmpty ? scan.category : 'Ürün Analizi',
+                            dateStr,
+                            isSafe,
+                            scan.topRiskDisease.isNotEmpty ? scan.topRiskDisease : scan.overallRiskLevel.toUpperCase(),
+                            color,
+                            icon,
+                            scan
+                          ),
+                        );
+                      }).toList(),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -373,12 +457,25 @@ class _HomeScreenState extends State<HomeScreen>
                         color: Colors.blue, size: 22),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    "Günlük Su Takibi",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Color(0xFF2C3E50)),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Günlük Su Takibi",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Color(0xFF2C3E50)),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "Her bardak 250 ml su içermektedir",
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -393,19 +490,27 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           const SizedBox(height: 16),
           // Su bardakları
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            spacing: 12.0,
+            runSpacing: 12.0,
+            alignment: WrapAlignment.start,
             children: List.generate(_waterGoal, (i) {
               final filled = i < _waterCount;
               return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (filled && i == _waterCount - 1) {
-                      _waterCount--;
-                    } else if (!filled && i == _waterCount) {
-                      _waterCount++;
-                    }
-                  });
+                onTap: () async {
+                  int newCount = _waterCount;
+                  if (filled && i == _waterCount - 1) {
+                    newCount--;
+                  } else if (!filled && i == _waterCount) {
+                    newCount++;
+                  }
+                  
+                  if (newCount != _waterCount) {
+                    setState(() {
+                      _waterCount = newCount;
+                    });
+                    await ApiService.updateWater(ApiService.requireUserId, newCount);
+                  }
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -440,14 +545,35 @@ class _HomeScreenState extends State<HomeScreen>
               color: Colors.blue,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            _waterCount >= _waterGoal
-                ? "Günlük su hedefine ulaştın! 🎉"
-                : "${_waterGoal - _waterCount} bardak daha iç!",
-            style: TextStyle(
-              color: _waterCount >= _waterGoal ? Colors.green : Colors.grey,
-              fontSize: 12,
+          const SizedBox(height: 16),
+          // Kişiselleştirilmiş Su Tavsiyesi
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F5E9),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF2C7A4B).withOpacity(0.2)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.info_outline_rounded, size: 20, color: Color(0xFF2C7A4B)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _waterCount >= _waterGoal
+                        ? "Bugünkü su hedefine ulaştın! Gerçek bir VitaCheck şampiyonusun. 🔥"
+                        : (_waterCount >= _waterGoal / 2)
+                            ? "Harika gidiyorsun! Vücudun sana teşekkür ediyor. 🙌"
+                            : "Su içmek metabolizmanı hızlandırır, bir bardak daha içmeye ne dersin? 💧",
+                    style: const TextStyle(
+                      color: Color(0xFF2C7A4B),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -548,11 +674,11 @@ class _HomeScreenState extends State<HomeScreen>
                 color: Color(0xFF2C7A4B), size: 28),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   "Biliyor muydun?",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -560,10 +686,10 @@ class _HomeScreenState extends State<HomeScreen>
                     fontSize: 14,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  "E202 (Potasyum Sorbat) yaygın bir koruyucu maddedir. Bazı kişilerde alerjik reaksiyona neden olabilir.",
-                  style: TextStyle(color: Color(0xFF2C3E50), fontSize: 12),
+                  _todayMotivation,
+                  style: const TextStyle(color: Color(0xFF2C3E50), fontSize: 12),
                 ),
               ],
             ),
@@ -580,8 +706,13 @@ class _HomeScreenState extends State<HomeScreen>
       String reason,
       Color color,
       IconData icon,
+      AnalysisResult result,
       ) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => ResultScreen(result: result)));
+      },
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -622,6 +753,6 @@ class _HomeScreenState extends State<HomeScreen>
               style: const TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
-    );
+    ));
   }
 }

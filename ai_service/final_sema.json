@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "image": "whatsapp_gorsel_1.jpeg",
+  "serving_g": 21.0,
+  "fields": {
+    "Energy_kcal": {
+      "label": "Enerji",
+      "per_100g": 530,
+      "per_portion": 111,
+      "unit": "kcal",
+      "confidence": 0.0,
+      "needs_input": false,
+      "manual_override": true,
+      "source": "user",
+      "ratio_ok": null
+    },
+    "Energy_kJ": {
+      "label": "Enerji (kJ)",
+      "per_100g": null,
+      "per_portion": null,
+      "unit": "kJ",
+      "confidence": 0.0,
+      "needs_input": true,
+      "manual_override": false,
+      "source": "missing",
+      "ratio_ok": null
+    },
+    "Fat_g": {
+      "label": "Yağ",
+      "per_100g": 30.0,
+      "per_portion": 54.0,
+      "unit": "g",
+      "confidence": 0.9803,
+      "needs_input": false,
+      "manual_override": true,
+      "source": "user",
+      "ratio_ok": false
+    },
+    "SaturatedFat_g": {
+      "label": "Doymuş Yağ",
+      "per_100g": 12.0,
+      "per_portion": 2.5,
+      "unit": "g",
+      "confidence": 0.0,
+      "needs_input": false,
+      "manual_override": true,
+      "source": "user",
+      "ratio_ok": null
+    },
+    "Carbohydrate_g": {
+      "label": "Karbonhidrat",
+      "per_100g": 62.0,
+      "per_portion": 13.0,
+      "unit": "g",
+      "confidence": 0.9809,
+      "needs_input": false,
+      "manual_override": false,
+      "source": "ocr",
+      "ratio_ok": true
+    },
+    "Sugar_g": {
+      "label": "Şeker",
+      "per_100g": 43.0,
+      "per_portion": 9.0,
+      "unit": "g",
+      "confidence": 0.9852,
+      "needs_input": false,
+      "manual_override": false,
+      "source": "ocr",
+      "ratio_ok": true
+    },
+    "Fiber_g": {
+      "label": "Lif",
+      "per_100g": 1.1,
+      "per_portion": 0.2,
+      "unit": "g",
+      "confidence": 0.8486,
+      "needs_input": false,
+      "manual_override": false,
+      "source": "ocr",
+      "ratio_ok": true
+    },
+    "Protein_g": {
+      "label": "Protein",
+      "per_100g": 6.9,
+      "per_portion": 1.5,
+      "unit": "g",
+      "confidence": 0.8056,
+      "needs_input": false,
+      "manual_override": false,
+      "source": "ocr",
+      "ratio_ok": true
+    },
+    "Salt_g": {
+      "label": "Tuz",
+      "per_100g": 0.44,
+      "per_portion": 0.1,
+      "unit": "g",
+      "confidence": 0.9734,
+      "needs_input": false,
+      "manual_override": false,
+      "source": "ocr",
+      "ratio_ok": true
+    },
+    "Sodium_mg": {
+      "label": "Sodyum",
+      "per_100g": null,
+      "per_portion": null,
+      "unit": "mg",
+      "confidence": 0.0,
+      "needs_input": true,
+      "manual_override": false,
+      "source": "missing",
+      "ratio_ok": null
+    },
+    "Potassium_mg": {
+      "label": "Potasyum",
+      "per_100g": null,
+      "per_portion": null,
+      "unit": "mg",
+      "confidence": 0.0,
+      "needs_input": true,
+      "manual_override": false,
+      "source": "missing",
+      "ratio_ok": null
+    },
+    "Calcium_mg": {
+      "label": "Kalsiyum",
+      "per_100g": null,
+      "per_portion": null,
+      "unit": "mg",
+      "confidence": 0.0,
+      "needs_input": true,
+      "manual_override": false,
+      "source": "missing",
+      "ratio_ok": null
+    }
+  },
+  "extra_nutrients": [
+    {
+      "name": "Demir",
+      "key": "Iron_mg",
+      "per_100g": 2.5,
+      "per_portion": 0.5,
+      "unit": "mg",
+      "manual_override": true,
+      "source": "user"
+    }
+  ],
+  "meta": {
+    "ocr_found_count": 6,
+    "needs_input_count": 4,
+    "total_fields": 12,
+    "override_count": 3
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "image": "whatsapp_gorsel_1.jpeg",
+  "status": "ok",
+  "quality_report": {
+    "passed": true,
+    "failure_reason": null,
+    "message": "OK",
+    "width": 1200,
+    "height": 1600,
+    "blur_score": 57.12,
+    "brightness": 114.73,
+    "glare_score": 0.1
+  },
+  "serving_g": 21.0,
+  "normalized_data": {
+    "Fat_g": {
+      "per_100g": 26.0,
+      "unit": "g",
+      "confidence": 0.9803,
+      "ratio_ok": false,
+      "per_portion": 54.0
+    },
+    "Carbohydrate_g": {
+      "per_100g": 62.0,
+      "unit": "g",
+      "confidence": 0.9809,
+      "ratio_ok": true,
+      "per_portion": 13.0
+    },
+    "Sugar_g": {
+      "per_100g": 43.0,
+      "unit": "g",
+      "confidence": 0.9852,
+      "ratio_ok": true,
+      "per_portion": 9.0
+    },
+    "Fiber_g": {
+      "per_100g": 1.1,
+      "unit": "g",
+      "confidence": 0.8486,
+      "ratio_ok": true,
+      "per_portion": 0.2
+    },
+    "Protein_g": {
+      "per_100g": 6.9,
+      "unit": "g",
+      "confidence": 0.8056,
+      "ratio_ok": true,
+      "per_portion": 1.5
+    },
+    "Salt_g": {
+      "per_100g": 0.44,
+      "unit": "g",
+      "confidence": 0.9734,
+      "ratio_ok": true,
+      "per_portion": 0.1
+    }
+  },
+  "risk_messages": []
+}

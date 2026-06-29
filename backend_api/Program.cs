@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VitaCheck.API.Data;
+using VitaCheck.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll",
         policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
+
+// 3. AI Analiz Servisi (Python FastAPI → HttpClient)
+builder.Services.AddHttpClient<IAiAnalysisService, AiAnalysisService>();
 
 builder.Services.AddControllers();
 

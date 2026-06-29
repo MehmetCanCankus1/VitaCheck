@@ -1,0 +1,81 @@
+{
+    "image": "cekırdek.jpeg",
+    "status": "ok",
+    "quality_report": {
+        "passed": true,
+        "failure_reason": null,
+        "message": "OK",
+        "width": 1200,
+        "height": 1600,
+        "blur_score": 161.73,
+        "brightness": 120.26,
+        "glare_score": 3.6
+    },
+    "serving_g": 100.0,
+    "normalized_data": {
+        "Energy_kcal": {
+            "per_100g": 100.0,
+            "unit": "kcal",
+            "confidence": 0.9894,
+            "per_portion": 100.0,
+            "per_portion_src": "hesaplama (100.0g)"
+        },
+        "Energy_kJ": {
+            "per_100g": 2129.0,
+            "unit": "kJ",
+            "confidence": 0.9583,
+            "per_portion": 2129.0,
+            "per_portion_src": "hesaplama (100.0g)"
+        },
+        "Fat_g": {
+            "per_100g": 31.2,
+            "unit": "g",
+            "confidence": 0.8749,
+            "per_portion": 31.2,
+            "per_portion_src": "hesaplama (100.0g)"
+        },
+        "SaturatedFat_g": {
+            "per_100g": 2.6,
+            "unit": "g",
+            "confidence": 0.7323,
+            "per_portion": 2.6,
+            "per_portion_src": "hesaplama (100.0g)"
+        },
+        "Carbohydrate_g": {
+            "per_100g": 23.7,
+            "unit": "g",
+            "confidence": 0.9047,
+            "per_portion": 23.7,
+            "per_portion_src": "hesaplama (100.0g)"
+        },
+        "Sugar_g": {
+            "per_100g": 0.0,
+            "unit": "g",
+            "confidence": 0.9867,
+            "per_portion": 0.0,
+            "per_portion_src": "hesaplama (100.0g)"
+        },
+        "Protein_g": {
+            "per_100g": 27.8,
+            "unit": "g",
+            "confidence": 0.92,
+            "per_portion": 27.8,
+            "per_portion_src": "hesaplama (100.0g)"
+        },
+        "Salt_g": {
+            "per_100g": 0.18,
+            "unit": "g",
+            "confidence": 0.893,
+            "per_portion": 0.18,
+            "per_portion_src": "hesaplama (100.0g)"
+        }
+    },
+    "extra_data": {},
+    "meta": {
+        "ocr_nutrient_count": 8,
+        "user_added_count": 0,
+        "manual_override_count": 0,
+        "schema_version": "3.0",
+        "risk_analysis": {}
+    }
+}
